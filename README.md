@@ -1,5 +1,5 @@
 # El Camino R.E.N.A.C.E. — App (v1 definitiva)
-
+ 
 Programa de transformación de 12 semanas para mamás. 10 minutos por día. De agotada y en piloto automático → a en calma y reconectada consigo.
 
 ## Correr local
