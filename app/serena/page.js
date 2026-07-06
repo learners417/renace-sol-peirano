@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { getUser, getOnboarding, posicionActual } from "@/lib/estado";
+import { getUser, getOnboarding, posicionActual, saludoHora } from "@/lib/estado";
 import { getSemana } from "@/lib/programa";
 import { respuestaLocal, CRISIS } from "@/lib/serena-local";
 
@@ -19,7 +19,7 @@ export default function Serena() {
     if (!u) { router.replace("/login"); return; }
     if (!getOnboarding()) { router.replace("/onboarding"); return; }
     setUser(u);
-    setMsgs([{ de: "serena", t: `Hola ${u.nombre} 🤍 Soy Serena, tu compañera de camino. Soy una asistente del método (no una terapeuta, y no reemplazo ayuda profesional). Estoy para acompañarte: ¿cómo venís hoy?` }]);
+    setMsgs([{ de: "serena", t: `${saludoHora()}, ${u.nombre} 🤍 Soy Serena, tu compañera de camino. Soy una asistente del método (no una terapeuta, y no reemplazo ayuda profesional). Estoy para acompañarte: ¿cómo venís hoy?` }]);
   }, [router]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, pensando]);

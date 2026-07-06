@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getUser, getOnboarding, promedioInicial, promedioReciente, totalDiasHechos, caminoCompleto } from "@/lib/estado";
+import { compartirTexto } from "@/lib/compartir";
 
 export default function Graduacion() {
   const router = useRouter();
@@ -24,20 +25,16 @@ export default function Graduacion() {
   const rec = promedioReciente();
 
   const compartir = async () => {
-    const t = `Completé mi camino R.E.N.A.C.E. 🌸 12 semanas de volver a mí. Mi jardín floreció entero. 🤍`;
-    try {
-      if (navigator.share) await navigator.share({ text: t });
-      else { await navigator.clipboard.writeText(t); alert("Copiado 🤍"); }
-    } catch {}
+    await compartirTexto(`Completé mi programa R.E.N.A.C.E. 🌸 90 días de volver a mí. Mi jardín floreció entero. 🤍`);
   };
 
   return (
     <div className="full center">
       <div style={{ fontSize: 56 }}>🌸</div>
-      <div className="kick" style={{ margin: "10px 0" }}>Tu graduación</div>
-      <h1 className="h1">Floreciste, {user.nombre}.</h1>
+      <div className="kick" style={{ margin: "10px 0" }}>Programa completado · 90 días</div>
+      <h1 className="h1">Lo lograste, {user.nombre}.</h1>
       <p style={{ fontSize: 16, color: "#5A5266", margin: "14px 0", lineHeight: 1.65 }}>
-        12 semanas. {totalDiasHechos()} días regados. Un jardín entero.
+        Completaste tu programa de 90 días. {totalDiasHechos()} días regados, un jardín entero.
         No cambiaste quién sos — <b style={{ color: "#7E6399" }}>volviste a vos.</b>
       </p>
 
@@ -71,11 +68,11 @@ export default function Graduacion() {
       <button className="btn sec mt" onClick={compartir}>Compartir mi flor 🌸</button>
 
       <div className="card mt2" style={{ textAlign: "left" }}>
-        <div className="kick">Tu camino sigue, si querés</div>
-        <h2 className="h2" style={{ margin: "6px 0" }}>El Jardín · membresía</h2>
+        <div className="kick">Seguí perteneciendo, si querés</div>
+        <h2 className="h2" style={{ margin: "6px 0" }}>El Jardín · la comunidad de graduadas</h2>
         <p className="sub" style={{ marginBottom: 10 }}>
-          Todo tu contenido y herramientas, Serena y SOS Calma, el Círculo, un encuentro en vivo con Sol
-          por mes y contenido nuevo cada mes.
+          Tu programa terminó, pero tu jardín puede seguir creciendo entre mujeres que ya caminaron esto.
+          Un encuentro en vivo con Sol cada mes, contenido nuevo, la comunidad, y tus herramientas siempre a mano.
         </p>
         <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 700, color: "var(--deep)" }}>
           US$ 19<span style={{ fontSize: 16 }}>/mes</span>

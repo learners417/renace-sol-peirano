@@ -16,7 +16,6 @@ export default function Jardin() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState(null);
-  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const u = getUser();
