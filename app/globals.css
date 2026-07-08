@@ -186,3 +186,14 @@ button{font-family:inherit;cursor:pointer}
 
 /* mood con label */
 .mood span{display:block;font-size:9.5px;font-weight:800;color:var(--muted);margin-top:5px}
+
+/* etapa subtitulo y filas de módulo */
+.etapa-sub{font-size:13.5px;color:var(--deep);font-weight:700;margin:0 0 8px;line-height:1.4}
+.mod-row{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:9px}
+.mod-row.activo{border-color:var(--lilac);background:var(--soft)}
+.mod-ic{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0}
+.mod-nombre{font-size:14px;font-weight:800;color:var(--ink);line-height:1.15}
+.mod-videos{font-size:11.5px;color:var(--muted);font-weight:700}
+/* jardin 10 flores: 5 por fila */
+.garden-5{grid-template-columns:repeat(5,1fr)!important}
+@media(max-width:400px){.garden-5{grid-template-columns:repeat(4,1fr)!important}}

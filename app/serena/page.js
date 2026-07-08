@@ -2,8 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import { getUser, getOnboarding, posicionActual, saludoHora } from "@/lib/estado";
-import { getSemana } from "@/lib/programa";
+import { getUser, getOnboarding, indiceActual, saludoHora } from "@/lib/estado";
+import { videoPorIndice, getModulo } from "@/lib/programa";
 import { respuestaLocal, CRISIS } from "@/lib/serena-local";
 
 export default function Serena() {
@@ -30,15 +30,15 @@ export default function Serena() {
     e.preventDefault();
     const t = texto.trim();
     if (!t || pensando) return;
-    const pos = posicionActual();
-    const sem = getSemana(pos.s);
+    const v = videoPorIndice(Math.min(indiceActual(), 27));
+    const sem = v ? getModulo(v.modulo) : null;
     const nuevos = [...msgs, { de: "ella", t }];
     setMsgs(nuevos);
     setTexto("");
 
     // Crisis: respuesta inmediata local, siempre (no depende de la API)
     if (CRISIS.some((c) => t.toLowerCase().includes(c))) {
-      setMsgs((m) => [...m, { de: "serena", t: respuestaLocal(t, sem?.titulo) }]);
+      setMsgs((m) => [...m, { de: "serena", t: respuestaLocal(t, sem?.nombre) }]);
       return;
     }
 
@@ -47,13 +47,13 @@ export default function Serena() {
       const r = await fetch("/api/serena", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ mensajes: nuevos, nombre: user.nombre, semana: { n: pos.s, titulo: sem?.titulo, eje: sem?.eje } }),
+        body: JSON.stringify({ mensajes: nuevos, nombre: user.nombre, semana: { n: v ? v.modulo : 1, titulo: sem?.nombre, eje: sem?.nombre } }),
       });
       const data = await r.json();
-      const respuesta = data.ok && data.texto ? data.texto : respuestaLocal(t, sem?.titulo);
+      const respuesta = data.ok && data.texto ? data.texto : respuestaLocal(t, sem?.nombre);
       setMsgs((m) => [...m, { de: "serena", t: respuesta }]);
     } catch {
-      setMsgs((m) => [...m, { de: "serena", t: respuestaLocal(t, sem?.titulo) }]);
+      setMsgs((m) => [...m, { de: "serena", t: respuestaLocal(t, sem?.nombre) }]);
     } finally {
       setPensando(false);
     }

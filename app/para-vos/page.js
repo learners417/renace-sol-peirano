@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import { getUser } from "@/lib/estado";
 import { herramientas } from "@/lib/programa";
 const extra = { id: "circulo", titulo: "El Círculo", desc: "La comunidad de mamás.", icono: "💬", ruta: "/circulo", color: "#B48EAD" };
+const ayuda = { id: "como", titulo: "Cómo funciona", desc: "Guía rápida de tu app.", icono: "📖", ruta: "/como-funciona", color: "#C2A98E" };
 
 const meds = [
   { t: "Volver a vos", m: "10 min · presencia", c: "linear-gradient(120deg,#A990CC,#C9B8E0)" },
@@ -26,7 +27,7 @@ export default function ParaVos() {
         <div className="section-title">Tus herramientas</div>
         <div className="section-sub">Todo lo que te sostiene, en un solo lugar. Volvé cuando lo necesites.</div>
         <div className="herramientas">
-          {[...herramientas, extra].map((h) => (
+          {[...herramientas, extra, ayuda].map((h) => (
             <div key={h.id} className="herram" onClick={() => router.push(h.ruta)}>
               <div className="hic" style={{ background: h.color }}>{h.icono}</div>
               <div className="ht">{h.titulo}</div>

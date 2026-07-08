@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import Sos from "@/components/Sos";
-import { preguntasCirculo } from "@/lib/programa";
-import { getUser, getOnboarding, posicionActual, getPosts, publicarPost } from "@/lib/estado";
+import { preguntasCirculo, videoPorIndice } from "@/lib/programa";
+import { getUser, getOnboarding, indiceActual, getPosts, publicarPost } from "@/lib/estado";
 
 export default function Circulo() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function Circulo() {
     const u = getUser();
     if (!u) { router.replace("/login"); return; }
     if (!getOnboarding()) { router.replace("/onboarding"); return; }
-    setUser(u); setPosts(getPosts()); setPos(posicionActual());
+    setUser(u); setPosts(getPosts()); const v = videoPorIndice(Math.min(indiceActual(),27)); setPos({ s: v ? v.modulo : 10 });
   }, [router]);
 
   if (!user) return null;

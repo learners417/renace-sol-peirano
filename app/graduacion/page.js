@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUser, getOnboarding, promedioInicial, promedioReciente, totalDiasHechos, caminoCompleto } from "@/lib/estado";
+import { getUser, getOnboarding, promedioInicial, promedioReciente, totalPasosHechos, caminoCompleto } from "@/lib/estado";
 import { compartirTexto } from "@/lib/compartir";
+import { encuestaFinal } from "@/lib/programa";
 
 export default function Graduacion() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function Graduacion() {
       <div className="kick" style={{ margin: "10px 0" }}>Programa completado · 90 días</div>
       <h1 className="h1">Lo lograste, {user.nombre}.</h1>
       <p style={{ fontSize: 16, color: "#5A5266", margin: "14px 0", lineHeight: 1.65 }}>
-        Completaste tu programa de 90 días. {totalDiasHechos()} días regados, un jardín entero.
+        Completaste tu programa de 90 días. {totalPasosHechos()} días regados, un jardín entero.
         No cambiaste quién sos — <b style={{ color: "#7E6399" }}>volviste a vos.</b>
       </p>
 
