@@ -1,24 +1,22 @@
-# El Camino R.E.N.A.C.E. — App (v6, fiel a Sol + vendible)
+# El Camino R.E.N.A.C.E. — App (v7, simple y clara)
 
-Programa de 90 días para mamás. 10 módulos, 27 videos (estructura real de Sol). Un paso por día. Modelo: programa con resultado + comunidad de graduadas (opcional).
+Programa de 90 días para mamás. 10 módulos, 27 videos (estructura real de Sol). Un paso por día.
+Rediseñada para máxima claridad: una mamá agotada entiende qué hacer en 5 segundos.
 
-## v6 — fidelidad a Sol (según su documento) + capa vendible
-Fiel a Sol:
-- Títulos y descripciones de los 27 videos TEXTUALES (palabra por palabra de Sol).
-- Etapas rotuladas por SEMANAS (Semanas 1–4 / 5–7 / 8–12) como ella las piensa, + módulos.
-- Correcciones aplicadas: "Respondé lo que sientas, no hay respuestas incorrectas"; mensaje de Sol corregido; 3 etapas con sus metas y logros textuales.
-- Nueva pantalla "Cómo funciona tu camino" (onboarding + accesible desde Para vos) — respondiendo su pregunta.
-- Encuesta inicial (en onboarding) y final (lista para graduación) — placeholders; las reales están en GoHighLevel.
+## v7 — Simplificación radical (feedback: "no se entiende, es complicada")
+- **Menú de 3 secciones**: Hoy · Mi camino · Serena. (Antes 5, abrumaba.)
+- **Pantalla "Hoy" con un solo botón gigante**: "Empezar mi día". Cero decisiones al abrir.
+- **Ritual a pantalla completa**, una cosa por vez (Paso 1 de 4 → 2 → 3 → 4), con barra de progreso clara. Imposible perderse.
+- **"Mi camino"**: una sola pantalla que fusiona programa + jardín + termómetro + herramientas (antes eran 4 pantallas separadas). Muestra claro: dónde estás, cuánto hiciste, cuánto falta.
+- **Onboarding corto**: 4 pasos (antes 7). Llega rápido a usar la app.
+- Lenguaje más simple, frases cortas, cero jerga.
+- Rutas viejas (/programa, /jardin, /para-vos) redirigen a /mi-camino.
 
-Capa vendible (lo que la hace competitiva, sin tocar el método de Sol):
-- Ritual diario de 10 min (hábito, no curso pasivo).
-- Serena (IA con la voz de Sol) + SOS Calma (utilidad urgente única).
-- Jardín gamificado + semillas compartibles (loop viral).
-- Termómetro visible (la encuesta = transformación visible + prueba social).
-- Programa con graduación (vende mejor que suscripción).
+## Se mantiene el alma de Sol
+Todo su contenido intacto: 10 módulos, 27 videos con títulos y descripciones textuales, las 3 etapas con sus textos, la voz de Sol, la filosofía de aceptación. Solo cambió la forma de presentarlo: más clara.
 
-## Pendiente de GoHighLevel (Sol carga): videos reales, afirmaciones por módulo, meditaciones por módulo, bonus, módulo 10, actividades exactas, preguntas reales de la encuesta.
-## Pendiente técnico: Supabase (progreso en nube + memoria de Serena + comunidad compartida).
+## Se mantiene lo vendible
+Ritual diario (hábito), Serena (IA con voz de Sol), SOS Calma, jardín, semillas compartibles, termómetro, programa con graduación.
 
-## Deploy: subir contenido a la raíz → Vercel. Variables: ANTHROPIC_API_KEY, SERENA_MODEL, RENACE_CODES, NEXT_PUBLIC_LINK_JARDIN.
-## Contenido editable: lib/programa.js · Textos A/B: lib/textos.js
+## Pendiente: contenido real de GoHighLevel (videos, afirmaciones, meditaciones) + Supabase.
+## Deploy: subir a la raíz → Vercel. Variables: ANTHROPIC_API_KEY, SERENA_MODEL, RENACE_CODES, NEXT_PUBLIC_LINK_JARDIN.

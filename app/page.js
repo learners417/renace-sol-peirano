@@ -2,38 +2,29 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
-import Sos from "@/components/Sos";
-import { videoPorIndice, semillaPorIndice, getModulo, etapaDeModulo, vozSolModulo, TOTAL_PASOS } from "@/lib/programa";
+import { videoPorIndice, semillaPorIndice, getModulo, vozSolModulo, TOTAL_PASOS } from "@/lib/programa";
 import { compartirTexto } from "@/lib/compartir";
 import {
   getUser, getOnboarding, indiceActual, marcarPaso, pasosDeModulo, pasosHechosModulo,
-  hoyYaCheckeo, registrarCheckin, getPausa, setPausa, caminoCompleto, pasoCompletadoHoy,
-  guardarSemilla, saludoHora, esHoraDificil,
+  registrarCheckin, caminoCompleto, pasoCompletadoHoy, guardarSemilla, saludoHora,
+  esHoraDificil, totalPasosHechos,
 } from "@/lib/estado";
 
 const moods = [
   { v: 1, e: "🌧", l: "Difícil" }, { v: 2, e: "🌫", l: "Apagada" },
   { v: 3, e: "⛅", l: "Ahí va" }, { v: 4, e: "🌤", l: "Bien" }, { v: 5, e: "☀️", l: "Radiante" },
 ];
-const animoMsg = {
-  1: "Gracias por ser honesta. En los días difíciles, tu pasito puede ser mínimo — con estar acá ya alcanza. 🤍",
-  2: "Te entiendo. Vamos suave hoy. No tenés que poder con todo: solo con este ratito para vos.",
-  3: "Ahí vamos, un pasito a la vez. Está perfecto estar así.",
-  4: "Qué bueno leerte así. Aprovechemos este envión para tu momento de hoy.",
-  5: "¡Qué lindo! Guardá un poquito de esa luz para vos en este ratito. ☀️",
-};
 
 export default function Hoy() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState(null);
   const [idx, setIdx] = useState(0);
-  const [fase, setFase] = useState("checkin"); // checkin | video | practica | semilla | cerrado | descanso
+  // vista: inicio (botón gigante) | checkin | video | practica | semilla | listo | descanso
+  const [vista, setVista] = useState("inicio");
   const [mood, setMood] = useState(null);
   const [nota, setNota] = useState("");
-  const [pausa, setPausaLocal] = useState(false);
   const [saludo, setSaludo] = useState("Hola");
-  const [horaDificil, setHoraDificil] = useState(false);
 
   useEffect(() => {
     const u = getUser();
@@ -42,11 +33,8 @@ export default function Hoy() {
     if (caminoCompleto()) { router.replace("/graduacion"); return; }
     setUser(u);
     setIdx(indiceActual());
-    setPausaLocal(getPausa());
     setSaludo(saludoHora());
-    setHoraDificil(esHoraDificil());
-    if (pasoCompletadoHoy()) setFase("descanso");
-    else setFase(hoyYaCheckeo() ? "video" : "checkin");
+    setVista(pasoCompletadoHoy() ? "descanso" : "inicio");
     setReady(true);
   }, [router]);
 
@@ -55,84 +43,100 @@ export default function Hoy() {
   const video = videoPorIndice(idx);
   if (!video) { router.replace("/graduacion"); return null; }
   const modulo = getModulo(video.modulo);
-  const etapa = etapaDeModulo(video.modulo);
   const semilla = semillaPorIndice(idx);
-  const hechosMod = pasosHechosModulo(video.modulo);
   const totalMod = pasosDeModulo(video.modulo).length;
+  const hechosMod = pasosHechosModulo(video.modulo);
   const vozSol = vozSolModulo[video.modulo];
-  const esPrimerVideoDelModulo = pasosDeModulo(video.modulo)[0] === idx;
+  const esPrimerVideoModulo = pasosDeModulo(video.modulo)[0] === idx;
+  const diaNum = totalPasosHechos() + 1;
 
-  const elegirMood = (v) => { setMood(v); registrarCheckin(v); setTimeout(() => setFase("video"), 400); };
-  const completar = () => { marcarPaso(idx, nota); setNota(""); setFase("cerrado"); };
-  const adelantar = () => { setIdx(indiceActual()); setFase(hoyYaCheckeo() ? "video" : "checkin"); };
+  const elegirMood = (v) => { setMood(v); registrarCheckin(v); setTimeout(() => setVista("video"), 400); };
+  const completar = () => { marcarPaso(idx, nota); setNota(""); setVista("listo"); };
   const compartir = async () => { guardarSemilla(semilla); await compartirTexto(`"${semilla}" 🤍 — mi semilla de hoy en mi camino R.E.N.A.C.E. ✿`); };
 
-  return (
-    <>
-      <div className="app">
-        <div className="topbar">
-          <div className="brand">R.E.N.A.C.E.<span> ✿</span></div>
-          <div className="pill" onClick={() => router.push("/programa")} style={{ cursor: "pointer" }}>
-            Módulo {video.modulo} · Etapa {etapa.n}
+  // ---------- VISTA INICIO: botón gigante, cero confusión ----------
+  if (vista === "inicio") {
+    return (
+      <>
+        <div className="app">
+          <div className="topbar">
+            <div className="brand">R.E.N.A.C.E.<span> ✿</span></div>
+          </div>
+
+          <div className="hoy-hero">
+            <div className="hoy-saludo">{saludo}, {user.nombre} 🤍</div>
+            <div className="hoy-dianum">Día {diaNum} de tu camino</div>
+
+            <div className="hoy-card">
+              <div className="hoy-modtag">Módulo {modulo.n} · {modulo.nombre}</div>
+              <h1 className="hoy-titulo">Tu momento de hoy</h1>
+              <p className="hoy-sub">Solo 10 minutos para vos. Sin apuro, sin exigencia.</p>
+              <button className="btn-gigante" onClick={() => setVista("checkin")}>
+                Empezar mi día ✿
+              </button>
+              <div className="hoy-tiempo">☀️ Toma unos 10 minutos</div>
+            </div>
+
+            {esHoraDificil() && (
+              <div className="ayuda-ctx" onClick={() => router.push("/sos")}>
+                <span>🕊 ¿Momento difícil? Tocá acá para calmarte en 1 minuto.</span>
+              </div>
+            )}
+
+            <button className="hoy-link" onClick={() => router.push("/mi-camino")}>
+              Ver cómo va mi camino ›
+            </button>
           </div>
         </div>
+        <Nav />
+      </>
+    );
+  }
 
-        {pausa && (
-          <div className="banner-pausa">
-            Estás en <b>modo pausa</b>. Tu camino te espera, sin apuro. 🤍
-            <div><button className="btn ghost" style={{ padding: 8 }} onClick={() => { setPausa(false); setPausaLocal(false); }}>Retomar mi ritmo</button></div>
-          </div>
-        )}
-
-        <div className="kick">Módulo {modulo.n} · {modulo.nombre}</div>
-        <h1 className="h1" style={{ margin: "6px 0 4px" }}>{saludo}, {user.nombre} ✿</h1>
-        <p className="sub">{modulo.intro}</p>
-
-        <div className="prog-mini" onClick={() => router.push("/programa")}>
-          <span>🎯 Programa · <b>{etapa.nombre}</b></span>
-          <span className="prog-mini-ver">ver ›</span>
-        </div>
-
-        {horaDificil && fase !== "cerrado" && (
-          <div className="ayuda-ctx" onClick={() => router.push("/sos")}>
-            <span>🕊 ¿Hora complicada? Si lo necesitás, tenés SOS Calma a un toque.</span>
-          </div>
-        )}
-
-        <div className="riegos" style={{ justifyContent: "flex-start", margin: "16px 0 20px" }}>
-          {Array.from({ length: totalMod }).map((_, i) => (
-            <div key={i} className={"gota" + (i < hechosMod ? " on" : "")} style={{ width: 12, height: 12 }} />
-          ))}
-          <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 800, marginLeft: 6 }}>
-            {hechosMod}/{totalMod} en este módulo
-          </span>
-        </div>
-
-        {esPrimerVideoDelModulo && vozSol && fase !== "cerrado" && fase !== "descanso" && (
-          <div className="voz-sol">
-            <div className="voz-sol-h"><span className="voz-av">S</span> Un mensaje de Sol</div>
-            <p>{vozSol}</p>
-          </div>
-        )}
-
-        {fase === "descanso" && (
-          <div className="cierre">
-            <div className="big">🌿</div>
-            <h2 className="h2">Hoy ya diste tu paso, {user.nombre}.</h2>
-            <p style={{ fontSize: 15.5, color: "#6A6276", margin: "12px 0 4px", lineHeight: 1.6 }}>
-              Tu pasito de hoy ya está dado. Lo mejor ahora es vivirlo. El camino rinde más de a un paso por día. 🤍
+  // ---------- VISTA DESCANSO: ya hizo su día ----------
+  if (vista === "descanso") {
+    return (
+      <>
+        <div className="app">
+          <div className="topbar"><div className="brand">R.E.N.A.C.E.<span> ✿</span></div></div>
+          <div className="hoy-hero">
+            <div style={{ fontSize: 60, marginBottom: 8 }}>🌿</div>
+            <h1 className="hoy-titulo">Ya diste tu paso de hoy</h1>
+            <p className="hoy-sub" style={{ maxWidth: 320, margin: "10px auto 0" }}>
+              Muy bien, {user.nombre}. Lo mejor ahora es cerrar la app y vivir tu día.
+              Mañana te espera el siguiente pasito. 🤍
             </p>
-            <button className="btn ghost mt" onClick={() => router.push("/jardin")}>Ver mi jardín</button>
-            <button className="btn ghost" onClick={adelantar} style={{ fontSize: 13 }}>Hoy tengo ganas de un pasito más →</button>
+            <button className="btn sec" style={{ marginTop: 24, maxWidth: 280 }} onClick={() => router.push("/mi-camino")}>
+              Ver cómo va mi camino
+            </button>
           </div>
-        )}
+        </div>
+        <Nav />
+      </>
+    );
+  }
 
-        {fase === "checkin" && (
-          <div className="card">
-            <div className="kick">Paso 1 · Tu momento</div>
-            <h2 className="h2" style={{ margin: "6px 0" }}>¿Cómo estás hoy?</h2>
-            <p className="sub">Respondé lo que sientas, no hay respuestas incorrectas.</p>
-            <div className="moods">
+  // ---------- RITUAL GUIADO: pantalla completa, una cosa por vez ----------
+  return (
+    <div className="ritual">
+      <div className="ritual-top">
+        <button className="ritual-x" onClick={() => setVista(pasoCompletadoHoy() ? "descanso" : "inicio")}>✕</button>
+        <div className="ritual-prog">
+          {["checkin","video","practica","semilla"].map((p, i) => {
+            const orden = ["checkin","video","practica","semilla","listo"];
+            const actualIdx = orden.indexOf(vista);
+            return <div key={p} className={"rdot" + (i <= actualIdx ? " on" : "")} />;
+          })}
+        </div>
+      </div>
+
+      <div className="ritual-body">
+        {vista === "checkin" && (
+          <div className="ritual-paso">
+            <div className="ritual-num">Paso 1 de 4</div>
+            <h2 className="ritual-h">¿Cómo estás hoy?</h2>
+            <p className="ritual-p">Respondé lo que sientas. No hay respuestas incorrectas.</p>
+            <div className="moods moods-grande">
               {moods.map((m) => (
                 <div key={m.v} className={"mood" + (mood === m.v ? " on" : "")} onClick={() => elegirMood(m.v)}>
                   {m.e}<span>{m.l}</span>
@@ -142,63 +146,71 @@ export default function Hoy() {
           </div>
         )}
 
-        {fase === "video" && (
-          <div className="card">
-            {mood && <div className="animo-msg">{animoMsg[mood]}</div>}
-            <div className="kick">Paso 2 · Tu video de hoy · {video.subtitulo}</div>
-            <h2 className="h2" style={{ margin: "6px 0 4px" }}>{video.titulo}</h2>
-            <p className="sub" style={{ marginBottom: 12 }}>{video.desc}</p>
-            <div className="vidph">
-              <div className="play"><svg width="15" height="17" viewBox="0 0 15 17"><path d="M0 0 L15 8.5 L0 17 Z" fill="#7E6399"/></svg></div>
+        {vista === "video" && (
+          <div className="ritual-paso">
+            <div className="ritual-num">Paso 2 de 4</div>
+            <h2 className="ritual-h">Mirá el video de hoy</h2>
+            {esPrimerVideoModulo && vozSol && (
+              <div className="voz-sol" style={{ marginBottom: 16 }}>
+                <div className="voz-sol-h"><span className="voz-av">S</span> Sol te dice</div>
+                <p style={{ fontSize: 16 }}>{vozSol}</p>
+              </div>
+            )}
+            <div className="vidph" style={{ height: 190 }}>
+              <div className="play"><svg width="16" height="18" viewBox="0 0 15 17"><path d="M0 0 L15 8.5 L0 17 Z" fill="#7E6399"/></svg></div>
               Video de Sol · próximamente
             </div>
-            {video.idea && <p className="idea-txt">{video.idea}</p>}
-            <button className="btn mt" onClick={() => setFase("practica")}>Ya lo vi · seguir con mi actividad →</button>
+            <p className="ritual-videotit">{video.titulo}</p>
+            <p className="ritual-videodesc">{video.desc}</p>
+            <button className="btn-gigante" onClick={() => setVista("practica")}>Ya lo vi →</button>
           </div>
         )}
 
-        {fase === "practica" && (
-          <div className="card">
-            <div className="kick">Paso 3 · Tu actividad de hoy</div>
-            <div className="practica-box"><b>Tu actividad:</b> {video.actividad}</div>
-            <textarea className="nota" placeholder="Si querés, dejá acá una línea para vos (opcional)…"
+        {vista === "practica" && (
+          <div className="ritual-paso">
+            <div className="ritual-num">Paso 3 de 4</div>
+            <h2 className="ritual-h">Tu actividad de hoy</h2>
+            <div className="practica-box" style={{ fontSize: 16, padding: "18px 20px" }}>{video.actividad}</div>
+            <textarea className="nota" style={{ marginTop: 14 }} placeholder="Si querés, escribí una línea para vos (opcional)…"
               value={nota} onChange={(e) => setNota(e.target.value)} />
-            <button className="btn mt" onClick={() => setFase("semilla")}>Hecho (o lo haré hoy) →</button>
-            <p className="sub center" style={{ marginTop: 10, fontSize: 12.5 }}>Con la intención alcanza. Acá no se falla: se camina.</p>
+            <button className="btn-gigante" onClick={() => setVista("semilla")}>Listo →</button>
+            <p className="ritual-mini">Con la intención alcanza. Acá no se falla: se camina.</p>
           </div>
         )}
 
-        {fase === "semilla" && (
-          <div>
-            <div className="kick center">Paso 4 · Tu semilla de hoy</div>
-            <div className="semilla">
+        {vista === "semilla" && (
+          <div className="ritual-paso">
+            <div className="ritual-num">Paso 4 de 4</div>
+            <h2 className="ritual-h">Tu frase para hoy</h2>
+            <div className="semilla" style={{ margin: "18px 0" }}>
               <div className="sq">“{semilla}”</div>
-              <div className="sm">R.E.N.A.C.E. ✿ Módulo {video.modulo}</div>
+              <div className="sm">R.E.N.A.C.E. ✿</div>
             </div>
-            <button className="btn sec" onClick={compartir}>Compartir y guardar mi semilla 🤍</button>
-            <button className="btn mt" onClick={completar}>Dar mi paso de hoy ✓</button>
+            <button className="btn sec" onClick={compartir}>Compartir esta frase 🤍</button>
+            <button className="btn-gigante" style={{ marginTop: 12 }} onClick={completar}>Terminar mi día ✓</button>
           </div>
         )}
 
-        {fase === "cerrado" && (
-          <div className="cierre">
-            <div className="big">🌷</div>
-            <h2 className="h2">Listo por hoy, {user.nombre}.</h2>
-            <p style={{ fontSize: 15.5, color: "#6A6276", margin: "12px 0 4px", lineHeight: 1.6 }}>
-              Diste tu paso de hoy. Ahora cerrá la app y andá a vivirlo. Lo que aprendiste se practica afuera. 🤍
+        {vista === "listo" && (
+          <div className="ritual-paso center">
+            <div style={{ fontSize: 66, marginBottom: 10 }}>🌷</div>
+            <h2 className="ritual-h">¡Listo, {user.nombre}!</h2>
+            <p className="ritual-p" style={{ maxWidth: 300, margin: "10px auto 0" }}>
+              Diste tu paso de hoy. Regaste tu jardín. Ahora andá a vivir tu día. 🤍
             </p>
-            <button className="btn ghost mt" onClick={() => router.push("/jardin")}>Ver cómo va mi jardín</button>
+            <div className="listo-prog">
+              <div className="listo-flores">
+                {Array.from({ length: totalMod }).map((_, i) => (
+                  <span key={i} style={{ opacity: i < hechosMod ? 1 : .3 }}>🌸</span>
+                ))}
+              </div>
+              <div className="listo-txt">{hechosMod} de {totalMod} en este módulo</div>
+            </div>
+            <button className="btn-gigante" style={{ marginTop: 20 }} onClick={() => router.push("/mi-camino")}>Ver mi camino</button>
+            <button className="hoy-link" onClick={() => setVista("descanso")}>Cerrar por hoy</button>
           </div>
-        )}
-
-        {(fase === "checkin" || fase === "video" || fase === "practica") && !pausa && (
-          <button className="btn ghost" style={{ marginTop: 8 }} onClick={() => { setPausa(true); setPausaLocal(true); }}>
-            Necesito pausar (sin culpa)
-          </button>
         )}
       </div>
-      <Sos />
-      <Nav />
-    </>
+    </div>
   );
 }

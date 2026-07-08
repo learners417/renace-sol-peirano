@@ -2,11 +2,9 @@
 import { usePathname, useRouter } from "next/navigation";
 
 const items = [
-  { href: "/", label: "Hoy", icon: "✿" },
-  { href: "/programa", label: "Programa", icon: "🎯" },
-  { href: "/jardin", label: "Jardín", icon: "🌷" },
-  { href: "/para-vos", label: "Para vos", icon: "🤍" },
-  { href: "/serena", label: "Serena", icon: "🌙" },
+  { href: "/", label: "Hoy", icon: "☀️" },
+  { href: "/mi-camino", label: "Mi camino", icon: "🌷" },
+  { href: "/serena", label: "Serena", icon: "💬" },
 ];
 
 export default function Nav() {
