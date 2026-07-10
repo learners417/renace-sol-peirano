@@ -1,64 +1,53 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Nav from "@/components/Nav";
-import Sos from "@/components/Sos";
+import { Nav } from "@/components/ui";
 import { getUser, getSemillasGuardadas } from "@/lib/estado";
+import { tarjetaSemilla, descargar } from "@/lib/collage";
+import { compartirTexto } from "@/lib/compartir";
 
 export default function Semillas() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
   const [semillas, setSemillas] = useState([]);
-  const [idx, setIdx] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) { router.replace("/login"); return; }
-    setUser(u);
+    if (!getUser()) { router.replace("/acceso"); return; }
     setSemillas(getSemillasGuardadas());
   }, [router]);
 
-  if (!user) return null;
-
-  const regarAlAzar = () => {
-    if (!semillas.length) return;
-    setIdx(Math.floor(Math.random() * semillas.length));
-  };
-
   return (
-    <>
-      <div className="app">
-        <button className="back" onClick={() => router.push("/para-vos")}>‹ Para vos</button>
-        <div className="section-title">Tus semillas</div>
-        <div className="section-sub">Las afirmaciones que fuiste guardando. Son tuyas para siempre.</div>
-
-        {semillas.length === 0 && (
-          <div className="card center">
-            <div style={{ fontSize: 34 }}>🌱</div>
-            <p className="sub" style={{ marginTop: 8 }}>Todavía no guardaste semillas. Cada día, al compartir tu semilla en el ritual, se guarda acá.</p>
-          </div>
-        )}
-
-        {semillas.length > 0 && (
-          <>
-            <button className="btn" onClick={regarAlAzar}>🌷 Regar mi día con una semilla</button>
-            {idx !== null && (
-              <div className="semilla" style={{ marginTop: 16 }}>
-                <div className="sq">“{semillas[idx]}”</div>
-                <div className="sm">Tu semilla de hoy 🤍</div>
-              </div>
-            )}
-            <div className="slabel" style={{ margin: "22px 0 12px" }}>Tu colección ({semillas.length})</div>
-            {semillas.map((sm, i) => (
-              <div key={i} className="card" style={{ padding: "16px 18px" }}>
-                <p style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: "var(--ink)", fontStyle: "italic" }}>“{sm}”</p>
-              </div>
-            ))}
-          </>
-        )}
+    <div className="app app-pad" style={{ paddingTop: 22 }}>
+      <button className="link" onClick={() => router.back()}>‹ Volver</button>
+      <div className="center stack" style={{ marginTop: 8 }}>
+        <div style={{ fontSize: "2rem" }}>🌱</div>
+        <h1 className="h1">Mis semillas</h1>
+        <p className="tiny">Las afirmaciones que fuiste guardando en tu camino.</p>
       </div>
-      <Sos />
+
+      {preview && (
+        <div className="card stack" style={{ marginTop: 16 }}>
+          <img src={preview} alt="Semilla para compartir" style={{ width: "100%", borderRadius: "var(--r-1)" }} />
+          <div className="grid-2">
+            <button className="btn btn-primary" onClick={() => descargar(preview, "semilla.png")}>Descargar</button>
+            <button className="btn btn-ghost" onClick={() => setPreview(null)}>Cerrar</button>
+          </div>
+        </div>
+      )}
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        {semillas.length === 0 && <div className="card center muted">Todavía no guardaste ninguna. En tu ritual, tocá “Guardar” en la semilla del día.</div>}
+        {semillas.map((s, i) => (
+          <div key={i} className="card card-luna">
+            <p className="serif-quote" style={{ fontSize: "1.15rem" }}>{s}</p>
+            <div className="grid-2" style={{ marginTop: 10 }}>
+              <button className="btn btn-ghost" onClick={() => setPreview(tarjetaSemilla(s))}>Hacer tarjeta</button>
+              <button className="btn btn-ghost" onClick={() => compartirTexto(`"${s}"\n\n— Mi camino R.E.N.A.C.E. con Sol Peirano`)}>Compartir</button>
+            </div>
+          </div>
+        ))}
+      </div>
       <Nav />
-    </>
+    </div>
   );
 }

@@ -1,33 +1,48 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Nav } from "@/components/ui";
 import { getUser } from "@/lib/estado";
 import { comoFunciona } from "@/lib/programa";
 
 export default function ComoFunciona() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  useEffect(() => { const u = getUser(); if (!u) router.replace("/login"); else setUser(u); }, [router]);
-  if (!user) return null;
+  useEffect(() => { if (!getUser()) router.replace("/acceso"); }, [router]);
+
   return (
-    <div className="app">
-      <button className="back" onClick={() => router.push("/para-vos")}>‹ Para vos</button>
-      <div className="section-title">Cómo funciona tu camino</div>
-      <div className="section-sub">Una guía rápida para aprovechar tu app. 🤍</div>
-      {comoFunciona.map((c, i) => (
-        <div key={i} className="card" style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-          <div style={{ fontSize: 30, flexShrink: 0 }}>{c.icono}</div>
-          <div>
-            <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, fontWeight: 600, color: "var(--ink)" }}>{c.titulo}</div>
-            <p className="sub" style={{ marginTop: 4, fontSize: 14.5, lineHeight: 1.6 }}>{c.texto}</p>
-          </div>
-        </div>
-      ))}
-      <div className="vidph" style={{ marginTop: 8 }}>
-        <div className="play"><svg width="15" height="17" viewBox="0 0 15 17"><path d="M0 0 L15 8.5 L0 17 Z" fill="#7E6399"/></svg></div>
-        Video "cómo usar la app" de Sol · próximamente
+    <div className="app app-pad" style={{ paddingTop: 24 }}>
+      <button className="link" onClick={() => router.back()}>‹ Volver</button>
+      <div className="center stack" style={{ marginTop: 8 }}>
+        <div style={{ fontSize: "2rem" }}>🧭</div>
+        <h1 className="h1">Cómo funciona tu camino</h1>
+        <p className="tiny">Simple, un paso por día. Acá lo importante:</p>
       </div>
-      <button className="btn mt" onClick={() => router.push("/")}>Ir a mi camino de hoy →</button>
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        {comoFunciona.map((c, i) => (
+          <div key={i} className="card">
+            <div className="row" style={{ alignItems: "flex-start" }}>
+              <span style={{ fontSize: "1.6rem" }}>{c.icono}</span>
+              <div>
+                <b>{c.titulo}</b>
+                <p className="muted" style={{ marginTop: 4 }}>{c.texto}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+        <div className="card card-luna">
+          <b style={{ color: "var(--luna)" }}>🌿 Tu renacer</b>
+          <p className="muted" style={{ marginTop: 4 }}>En "Mi renacer" registrás los cambios reales de tu vida. Ver un video no alcanza: cuando algo cambia de verdad, tu Rueda de la Vida crece. Ese es tu logro.</p>
+        </div>
+        <div className="card">
+          <b>🗓 Encuentros con Sol</b>
+          <p className="muted" style={{ marginTop: 4 }}>Además de la app, tenés encuentros en vivo con Sol durante el camino. Los avisamos por acá y por tu grupo.</p>
+        </div>
+      </div>
+
+      <Link href="/hoy" className="btn btn-primary btn-lg" style={{ marginTop: 20 }}>Empezar</Link>
+      <Nav />
     </div>
   );
 }

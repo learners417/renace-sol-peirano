@@ -1,22 +1,34 @@
-# El Camino R.E.N.A.C.E. — App (v7, simple y clara)
+# El Camino R.E.N.A.C.E. — App (v9 · según la sesión con Sol)
 
-Programa de 90 días para mamás. 10 módulos, 27 videos (estructura real de Sol). Un paso por día.
-Rediseñada para máxima claridad: una mamá agotada entiende qué hacer en 5 segundos.
+Programa de transformación para madres. Volver a nacer, volver a vos. Práctica diaria (~un paso por día, tipo Duolingo), flexible, que MIDE el cambio real — no teoría.
 
-## v7 — Simplificación radical (feedback: "no se entiende, es complicada")
-- **Menú de 3 secciones**: Hoy · Mi camino · Serena. (Antes 5, abrumaba.)
-- **Pantalla "Hoy" con un solo botón gigante**: "Empezar mi día". Cero decisiones al abrir.
-- **Ritual a pantalla completa**, una cosa por vez (Paso 1 de 4 → 2 → 3 → 4), con barra de progreso clara. Imposible perderse.
-- **"Mi camino"**: una sola pantalla que fusiona programa + jardín + termómetro + herramientas (antes eran 4 pantallas separadas). Muestra claro: dónde estás, cuánto hiciste, cuánto falta.
-- **Onboarding corto**: 4 pasos (antes 7). Llega rápido a usar la app.
-- Lenguaje más simple, frases cortas, cero jerga.
-- Rutas viejas (/programa, /jardin, /para-vos) redirigen a /mi-camino.
+## v9 — cambios que salieron de la sesión con Sol (08/07)
+- **Fuera el jardín.** Entra la **Rueda de la Vida** (`components/RuedaVida.js`): 9 áreas de vida que crecen con el cambio real, no con "ver el video".
+- **Registro de renacimiento** (el corazón): en **"Mi renacer"** (`app/mi-renacer`) ella registra **hitos** reales ("ayer hubiera gritado, hoy no"), con **evidencia** (foto), etiquetados por área → hacen crecer la rueda. Ver un video aporta poco; el cambio real, mucho.
+- **Fluidez**: se sacó el bloqueo duro "volvé mañana". Puede **seguir con el siguiente** sin salir del ritual, y adelantarse a su ritmo. Si va atrasada, se lo mostramos con cariño (no la trabamos).
+- **Orden secuencial**: no se puede saltar etapas (se desbloquean en orden), confirmado con Sol.
+- **Meditaciones**: 7, intercaladas en algunos módulos (`lib/vida.js` · `app/meditar`). Audios pendientes de Sol (Drive) — el reproductor queda listo.
+- **"Cómo funciona"** accesible desde Mi camino. **Encuentros con Sol** mencionados.
+- Nombre unificado en **renacer/renacimiento** (se quitó todo rastro de "jardín").
+- Se mantiene: la **luna** como progreso del camino, el ritual de pasos, Serena + 2 agentes (Diálogo/Juego), respiración 4-4-4-4, termómetro 1-10 antes/después (el final se toma en la graduación), y los **27 videos** conectados.
 
-## Se mantiene el alma de Sol
-Todo su contenido intacto: 10 módulos, 27 videos con títulos y descripciones textuales, las 3 etapas con sus textos, la voz de Sol, la filosofía de aceptación. Solo cambió la forma de presentarlo: más clara.
+## Estructura de navegación (4 secciones, móvil)
+Hoy · Mi camino · Mi renacer · Serena.
 
-## Se mantiene lo vendible
-Ritual diario (hábito), Serena (IA con voz de Sol), SOS Calma, jardín, semillas compartibles, termómetro, programa con graduación.
+## Pendiente de Sol
+- Audios de las 7 meditaciones (Drive) → `lib/vida.js` campo `audioUrl`, y confirmar en qué módulos van.
+- Afirmaciones reales por módulo y transcripciones de módulos 3,4,5,7,8,9 (para afinar ejercicios).
+- Videos de YouTube en "No listado".
+- Frame comercial de duración (la sesión trabaja 12 semanas; el "9 meses" queda a tu decisión — la arquitectura sirve para ambos).
 
-## Pendiente: contenido real de GoHighLevel (videos, afirmaciones, meditaciones) + Supabase.
-## Deploy: subir a la raíz → Vercel. Variables: ANTHROPIC_API_KEY, SERENA_MODEL, RENACE_CODES, NEXT_PUBLIC_LINK_JARDIN.
+## Después: Supabase (progreso en nube + memoria de Serena + comunidad de mamás dentro de la app — NO WhatsApp).
+
+## Deploy
+Subir el contenido a la raíz del repo → Vercel. Variables: `ANTHROPIC_API_KEY`, `SERENA_MODEL`, `RENACE_CODES`, `NEXT_PUBLIC_LINK_JARDIN`.
+
+## Archivos clave
+- `app/globals.css` — sistema de diseño (una fuente de verdad).
+- `lib/programa.js` — contenido (módulos, 27 videos, ideas, actividades, etapas, voz de Sol).
+- `lib/vida.js` — áreas de la Rueda de la Vida + meditaciones.
+- `lib/estado.js` — progreso, hitos (registro), score por área, desbloqueo secuencial, país.
+- `components/RuedaVida.js` — la firma de "Mi renacer". `components/Luna.js` — la luna del camino.

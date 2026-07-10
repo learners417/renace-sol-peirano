@@ -1,30 +1,17 @@
-// POST /api/acceso — valida el código de compra y devuelve el plan.
-// Configurar en Vercel: RENACE_CODES = "CAMINO-A1B2,ACOMP-C3D4,INTEGRAL-E5F6,..."
-// El prefijo del código define el plan (CAMINO / ACOMP / INTEGRAL).
-// Si RENACE_CODES no está configurado → modo demo: cualquier código entra.
-
-const planDe = (codigo) => {
-  const c = (codigo || "").toUpperCase();
-  if (c.startsWith("INTEGRAL")) return "integral";
-  if (c.startsWith("ACOMP")) return "acompanada";
-  return "camino";
-};
+// Valida el código de acceso. Prefijo -> plan. Configurable por env RENACE_CODES.
+const PREFIJOS = { "CAMINO-": "camino", "ACOMP-": "acompanada", "INTEGRAL-": "integral" };
 
 export async function POST(req) {
-  try {
-    const { codigo } = await req.json();
-    const lista = (process.env.RENACE_CODES || "").split(",").map((x) => x.trim().toUpperCase()).filter(Boolean);
-    const c = (codigo || "").trim().toUpperCase();
+  let body = {};
+  try { body = await req.json(); } catch {}
+  const codigo = (body.codigo || "").trim().toUpperCase();
 
-    if (lista.length === 0) {
-      // modo demo (sin códigos configurados)
-      return Response.json({ ok: true, plan: planDe(c), demo: true });
-    }
-    if (lista.includes(c)) {
-      return Response.json({ ok: true, plan: planDe(c) });
-    }
-    return Response.json({ ok: false });
-  } catch {
-    return Response.json({ ok: false });
-  }
+  const extra = (process.env.RENACE_CODES || "")
+    .split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
+  const prefijos = { ...PREFIJOS };
+  extra.forEach((p) => { if (!p.endsWith("-")) p += "-"; if (!prefijos[p]) prefijos[p] = p.replace("-", "").toLowerCase(); });
+
+  const hit = Object.keys(prefijos).find((p) => codigo.startsWith(p));
+  if (!hit) return Response.json({ ok: false, error: "Ese código no es válido. Revisalo o escribile a Sol." }, { status: 200 });
+  return Response.json({ ok: true, plan: prefijos[hit] });
 }

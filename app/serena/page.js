@@ -1,87 +1,85 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Nav from "@/components/Nav";
-import { getUser, getOnboarding, indiceActual, saludoHora } from "@/lib/estado";
-import { videoPorIndice, getModulo } from "@/lib/programa";
-import { respuestaLocal, CRISIS } from "@/lib/serena-local";
+import { Nav } from "@/components/ui";
+import { getUser, getPais, lunaActual } from "@/lib/estado";
+import { getModulo, etapaDeModulo } from "@/lib/programa";
+import { t } from "@/lib/voz";
+
+const MODOS = [
+  { id: "companera", label: "Compañera", ic: "🤍", intro: "Estoy acá para lo que traigas hoy. Contame, sin filtro." },
+  { id: "dialogo", label: "Con mi pareja", ic: "💬", intro: "Preparemos juntas esa conversación difícil. ¿Qué está pasando con tu pareja?" },
+  { id: "juego", label: "Con mi hijo/a", ic: "🧸", intro: "¿Qué edad tiene tu peque? Pensamos una actividad o cómo manejar un momento." },
+];
 
 export default function Serena() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [modo, setModo] = useState("companera");
   const [msgs, setMsgs] = useState([]);
-  const [texto, setTexto] = useState("");
-  const [pensando, setPensando] = useState(false);
-  const endRef = useRef(null);
+  const [input, setInput] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const [pais, setPais] = useState("OT");
+  const [ctx, setCtx] = useState("");
+  const scroller = useRef(null);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) { router.replace("/login"); return; }
-    if (!getOnboarding()) { router.replace("/onboarding"); return; }
-    setUser(u);
-    setMsgs([{ de: "serena", t: `${saludoHora()}, ${u.nombre} 🤍 Soy Serena, tu compañera de camino. Soy una asistente del método (no una terapeuta, y no reemplazo ayuda profesional). Estoy para acompañarte: ¿cómo venís hoy?` }]);
+    if (!getUser()) { router.replace("/acceso"); return; }
+    setPais(getPais());
+    const et = etapaDeModulo(Math.min(lunaActual(), 9));
+    setCtx(et?.nombre || "");
   }, [router]);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, pensando]);
+  useEffect(() => {
+    setMsgs([{ role: "app", texto: MODOS.find((m) => m.id === modo).intro }]);
+  }, [modo]);
 
-  if (!user) return null;
+  useEffect(() => { scroller.current?.scrollTo(0, scroller.current.scrollHeight); }, [msgs, cargando]);
 
-  const enviar = async (e) => {
-    e.preventDefault();
-    const t = texto.trim();
-    if (!t || pensando) return;
-    const v = videoPorIndice(Math.min(indiceActual(), 27));
-    const sem = v ? getModulo(v.modulo) : null;
-    const nuevos = [...msgs, { de: "ella", t }];
-    setMsgs(nuevos);
-    setTexto("");
-
-    // Crisis: respuesta inmediata local, siempre (no depende de la API)
-    if (CRISIS.some((c) => t.toLowerCase().includes(c))) {
-      setMsgs((m) => [...m, { de: "serena", t: respuestaLocal(t, sem?.nombre) }]);
-      return;
-    }
-
-    setPensando(true);
+  async function enviar() {
+    const texto = input.trim();
+    if (!texto || cargando) return;
+    const nuevo = [...msgs, { role: "me", texto }];
+    setMsgs(nuevo); setInput(""); setCargando(true);
     try {
       const r = await fetch("/api/serena", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ mensajes: nuevos, nombre: user.nombre, semana: { n: v ? v.modulo : 1, titulo: sem?.nombre, eje: sem?.nombre } }),
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ mensaje: texto, modo, contexto: ctx, historial: nuevo.slice(-8) }),
       });
-      const data = await r.json();
-      const respuesta = data.ok && data.texto ? data.texto : respuestaLocal(t, sem?.nombre);
-      setMsgs((m) => [...m, { de: "serena", t: respuesta }]);
+      const d = await r.json();
+      setMsgs((m) => [...m, { role: "app", texto: d.texto }]);
     } catch {
-      setMsgs((m) => [...m, { de: "serena", t: respuestaLocal(t, sem?.nombre) }]);
-    } finally {
-      setPensando(false);
-    }
-  };
+      setMsgs((m) => [...m, { role: "app", texto: "Se me cortó la conexión un momento. Probá de nuevo 🤍" }]);
+    } finally { setCargando(false); }
+  }
 
   return (
-    <>
-      <div className="app">
-        <div className="topbar">
-          <div className="brand">Serena<span> 💬</span></div>
-          <div className="pill">tu compañera</div>
-        </div>
-        <div className="chat">
-          {msgs.map((m, i) => (
-            <div key={i} className={"msg " + (m.de === "ella" ? "ella" : "serena")}>{m.t}</div>
-          ))}
-          {pensando && <div className="msg serena" style={{ opacity: .6 }}>escribiendo…</div>}
-          <div ref={endRef} />
-        </div>
-        <form className="chatrow" onSubmit={enviar}>
-          <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Contame cómo estás…" />
-          <button type="submit" disabled={pensando}>➤</button>
-        </form>
-        <p className="sub center" style={{ fontSize: 11.5, marginTop: 10 }}>
-          Serena acompaña, no diagnostica ni reemplaza terapia. En crisis, buscá ayuda profesional.
-        </p>
+    <div className="app app-pad" style={{ paddingTop: 22, display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
+      <div className="center" style={{ marginBottom: 10 }}>
+        <div className="eyebrow">Serena</div>
+        <p className="tiny">Tu compañera, con la voz de Sol · no reemplaza a un profesional</p>
       </div>
+
+      <div className="row" style={{ gap: 8, marginBottom: 10 }}>
+        {MODOS.map((m) => (
+          <button key={m.id} className={"agent-tab" + (modo === m.id ? " on" : "")} onClick={() => setModo(m.id)}>
+            <span style={{ fontSize: "1.1rem", display: "block" }}>{m.ic}</span>{m.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={scroller} className="chat-scroll" style={{ flex: 1, overflowY: "auto" }}>
+        {msgs.map((m, i) => (
+          <div key={i} className={"bubble " + (m.role === "me" ? "bubble-me" : "bubble-app")}>{m.texto}</div>
+        ))}
+        {cargando && <div className="bubble bubble-app" style={{ color: "var(--ink-2)" }}>{t("pensando", pais)}</div>}
+      </div>
+
+      <div className="row" style={{ gap: 8, paddingBottom: 8 }}>
+        <input className="field" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && enviar()} placeholder={t("escribiAqui", pais)} />
+        <button className="btn btn-primary" style={{ width: "auto", padding: "14px 20px" }} onClick={enviar} disabled={cargando}>→</button>
+      </div>
+
       <Nav />
-    </>
+    </div>
   );
 }

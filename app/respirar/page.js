@@ -1,66 +1,88 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUser } from "@/lib/estado";
+import Link from "next/link";
+import { getPais } from "@/lib/estado";
+import { conjuga } from "@/lib/voz";
 
-const CICLO = [
-  { fase: "Inhalá", dur: 4, escala: 1.35 },
-  { fase: "Sostené", dur: 4, escala: 1.35 },
-  { fase: "Exhalá", dur: 6, escala: 1 },
+const FASES = [
+  { l: "Inhalá", lt: "Inhala", s: 4, scale: 1.05 },
+  { l: "Retené", lt: "Retén", s: 4, scale: 1.05 },
+  { l: "Exhalá", lt: "Exhala", s: 4, scale: 0.72 },
+  { l: "Vacío", lt: "Vacío", s: 4, scale: 0.72 },
+];
+
+const FRASES = [
+  "Mamá necesita un respiro. Ya vuelvo, te quiero.",
+  "Estoy contigo. Ya va a pasar.",
+  "Puedo elegir la calma antes de responder.",
+  "No estoy fallando. Estoy respirando.",
 ];
 
 export default function Respirar() {
   const router = useRouter();
   const [activo, setActivo] = useState(false);
-  const [idx, setIdx] = useState(0);
-  const [seg, setSeg] = useState(CICLO[0].dur);
+  const [fase, setFase] = useState(0);
+  const [cuenta, setCuenta] = useState(4);
   const [ciclos, setCiclos] = useState(0);
-  const timer = useRef(null);
+  const [pais, setPais] = useState("OT");
+  const ref = useRef();
 
-  useEffect(() => { if (!getUser()) router.replace("/login"); }, [router]);
+  useEffect(() => setPais(getPais()), []);
 
   useEffect(() => {
     if (!activo) return;
-    timer.current = setInterval(() => {
-      setSeg((s) => {
-        if (s <= 1) {
-          const next = (idx + 1) % CICLO.length;
-          if (next === 0) setCiclos((c) => c + 1);
-          setIdx(next);
-          return CICLO[next].dur;
-        }
-        return s - 1;
+    ref.current = setInterval(() => {
+      setCuenta((c) => {
+        if (c > 1) return c - 1;
+        setFase((f) => {
+          const nf = (f + 1) % 4;
+          if (nf === 0) setCiclos((x) => x + 1);
+          return nf;
+        });
+        return 4;
       });
     }, 1000);
-    return () => clearInterval(timer.current);
-  }, [activo, idx]);
+    return () => clearInterval(ref.current);
+  }, [activo]);
 
-  const actual = CICLO[idx];
+  const f = FASES[fase];
+  const voseo = conjuga(pais, 1, 0);
 
   return (
-    <div className="sos-screen" style={{ background: "linear-gradient(170deg,#7E6399,#9D86BE)" }}>
-      <button onClick={() => router.back()} style={{ position: "absolute", top: 24, left: 20, background: "none", border: "none", color: "rgba(255,255,255,.85)", fontSize: 15, fontWeight: 700 }}>‹ Volver</button>
-      <div style={{ fontSize: 13, letterSpacing: ".2em", textTransform: "uppercase", opacity: .8, fontWeight: 800 }}>Respirá conmigo</div>
-      <div className="breath" style={{
-        width: 170, height: 170, transform: `scale(${activo ? actual.escala : 1})`,
-        transition: `transform ${activo ? actual.dur : 1}s ease-in-out`, animation: "none",
-      }}>
-        <div className="inner" style={{ width: 110, height: 110 }} />
+    <div className="app app-pad" style={{ paddingTop: 22, minHeight: "100dvh" }}>
+      <button className="link" onClick={() => router.back()}>‹ Volver</button>
+      <div className="center stack" style={{ marginTop: 8 }}>
+        <div className="eyebrow">SOS Calma</div>
+        <h1 className="h1">Respiración 4·4·4·4</h1>
+        <p className="tiny">La que enseña Sol. Seguí el ritmo del círculo.</p>
       </div>
-      {activo ? (
-        <>
-          <div className="sos-txt">{actual.fase}</div>
-          <div style={{ fontSize: 40, fontFamily: "'Cormorant Garamond',serif", fontWeight: 700, marginTop: 6 }}>{seg}</div>
-          <div className="sos-sub">{ciclos > 0 ? `${ciclos} ${ciclos === 1 ? "respiración completa" : "respiraciones completas"} 🤍` : "Dejate llevar. No hay nada que lograr."}</div>
-          <button className="sos-btn" onClick={() => router.back()} style={{ marginTop: 26 }}>Listo, gracias 🤍</button>
-        </>
+
+      <div className="breath-wrap">
+        <div className="orb" style={{ animation: "none", transform: `scale(${activo ? f.scale : 0.85})`, transition: "transform 1s ease" }}>
+          {activo ? <div className="center"><div style={{ fontFamily: "var(--serif)", fontSize: "1.3rem" }}>{voseo ? f.l : f.lt}</div><div className="num" style={{ fontSize: "1.8rem" }}>{cuenta}</div></div> : "🕊"}
+        </div>
+      </div>
+
+      {!activo ? (
+        <button className="btn btn-primary btn-lg" onClick={() => { setActivo(true); setFase(0); setCuenta(4); }}>Empezar a respirar</button>
       ) : (
-        <>
-          <div className="sos-txt">Una pausa para vos</div>
-          <div className="sos-sub">Tres respiraciones profundas alcanzan para volver a tu centro. Cuando quieras.</div>
-          <button className="sos-btn" onClick={() => { setActivo(true); setIdx(0); setSeg(CICLO[0].dur); setCiclos(0); }} style={{ marginTop: 26 }}>Empezar a respirar</button>
-        </>
+        <div className="stack">
+          <p className="center tiny">{ciclos} respiraciones completas</p>
+          <button className="btn btn-ghost" onClick={() => setActivo(false)}>Terminar</button>
+        </div>
       )}
+
+      <div className="card" style={{ marginTop: 22 }}>
+        <b className="tiny" style={{ color: "var(--luna)" }}>SI EL MOMENTO CON TU HIJO/A APRIETA, PODÉS DECIR:</b>
+        <div className="stack" style={{ marginTop: 8 }}>
+          {FRASES.map((fr, i) => <p key={i} className="serif-quote" style={{ fontSize: "1.05rem" }}>“{fr}”</p>)}
+        </div>
+      </div>
+
+      <p className="tiny center" style={{ marginTop: 16 }}>
+        ¿Necesitás hablar? <Link href="/serena" className="link">Serena está acá</Link>
+      </p>
     </div>
   );
 }

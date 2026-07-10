@@ -1,92 +1,92 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUser, getOnboarding, promedioInicial, promedioReciente, totalPasosHechos, caminoCompleto } from "@/lib/estado";
+import Link from "next/link";
+import { Luna } from "@/components/Luna";
+import { RuedaVida } from "@/components/RuedaVida";
+import { getUser, getOnboarding, promedioInicial, getTermometroFinal, setTermometroFinal, getHitos, areaScore, nacio } from "@/lib/estado";
+import { AREAS } from "@/lib/vida";
+import { vozSolModulo } from "@/lib/programa";
+import { collageFinal, descargar } from "@/lib/collage";
 import { compartirTexto } from "@/lib/compartir";
-import { encuestaFinal } from "@/lib/programa";
 
 export default function Graduacion() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [ob, setOb] = useState(null);
-  const [verCarta, setVerCarta] = useState(false);
+  const [s, setS] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) { router.replace("/login"); return; }
-    const o = getOnboarding();
-    if (!o) { router.replace("/onboarding"); return; }
-    if (!caminoCompleto()) { router.replace("/"); return; }
-    setUser(u); setOb(o);
+    if (!getUser()) { router.replace("/acceso"); return; }
+    const ob = getOnboarding();
+    const scores = {}; AREAS.forEach((a) => (scores[a.n] = areaScore(a.n)));
+    setS({
+      nombre: getUser().nombre, carta: ob?.carta || "",
+      antes: promedioInicial(), despues: getTermometroFinal(),
+      nacio: nacio(), scores,
+      frases: getHitos().filter((e) => e.texto).map((e) => e.texto),
+    });
   }, [router]);
 
-  if (!user || !ob) return null;
-
-  const ini = promedioInicial();
-  const rec = promedioReciente();
-
-  const compartir = async () => {
-    await compartirTexto(`Completé mi programa R.E.N.A.C.E. 🌸 90 días de volver a mí. Mi jardín floreció entero. 🤍`);
-  };
+  if (!s) return <div className="app" style={{ minHeight: "100dvh" }} />;
 
   return (
-    <div className="full center">
-      <div style={{ fontSize: 56 }}>🌸</div>
-      <div className="kick" style={{ margin: "10px 0" }}>Programa completado · 90 días</div>
-      <h1 className="h1">Lo lograste, {user.nombre}.</h1>
-      <p style={{ fontSize: 16, color: "#5A5266", margin: "14px 0", lineHeight: 1.65 }}>
-        Completaste tu programa de 90 días. {totalPasosHechos()} días regados, un jardín entero.
-        No cambiaste quién sos — <b style={{ color: "#7E6399" }}>volviste a vos.</b>
-      </p>
-
-      {(ini || rec) && (
-        <div className="card">
-          <div className="kick">Tu antes y ahora</div>
-          <div className="termometro">
-            {ini && <div className="tcol"><div className="tbar antes" style={{ height: 30 + ini * 22 }} /><div className="tnum">{ini}</div><div className="tlab">Al llegar</div></div>}
-            {rec && <div className="tcol"><div className="tbar" style={{ height: 30 + rec * 22 }} /><div className="tnum">{rec}</div><div className="tlab">Hoy</div></div>}
-          </div>
-        </div>
-      )}
-
-      {!verCarta && (
-        <div className="card card-soft">
-          <div style={{ fontSize: 30 }}>💌</div>
-          <h2 className="h2" style={{ margin: "6px 0" }}>Hay una carta esperándote</h2>
-          <p className="sub">La escribiste vos, el día que llegaste. Es hora de leerla.</p>
-          <button className="btn mt" onClick={() => setVerCarta(true)}>Abrir mi carta</button>
-        </div>
-      )}
-      {verCarta && (
-        <div className="semilla" style={{ textAlign: "left" }}>
-          <div className="sm" style={{ marginTop: 0, marginBottom: 12 }}>De: vos · Para: vos, 12 semanas después</div>
-          <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, lineHeight: 1.5, fontStyle: "italic", whiteSpace: "pre-wrap" }}>
-            {ob.carta}
-          </div>
-        </div>
-      )}
-
-      <button className="btn sec mt" onClick={compartir}>Compartir mi flor 🌸</button>
-
-      <div className="card mt2" style={{ textAlign: "left" }}>
-        <div className="kick">Seguí perteneciendo, si querés</div>
-        <h2 className="h2" style={{ margin: "6px 0" }}>El Jardín · la comunidad de graduadas</h2>
-        <p className="sub" style={{ marginBottom: 10 }}>
-          Tu programa terminó, pero tu jardín puede seguir creciendo entre mujeres que ya caminaron esto.
-          Un encuentro en vivo con Sol cada mes, contenido nuevo, la comunidad, y tus herramientas siempre a mano.
-        </p>
-        <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 34, fontWeight: 700, color: "var(--deep)" }}>
-          US$ 19<span style={{ fontSize: 16 }}>/mes</span>
-        </div>
-        <p className="sub" style={{ fontSize: 12.5 }}>Graduada fundadora: tu primer mes a US$ 9. Cancelás cuando quieras, sin vueltas.</p>
-        <button className="btn mt" onClick={() => {
-          const link = process.env.NEXT_PUBLIC_LINK_JARDIN;
-          if (link) window.open(link, "_blank");
-          else alert("El link de pago de la membresía se configura con NEXT_PUBLIC_LINK_JARDIN 🤍");
-        }}>Quiero quedarme en El Jardín</button>
+    <div className="app app-pad" style={{ paddingTop: 30 }}>
+      <div className="center stack">
+        <div className="luna-hero"><Luna fase={1} size={200} /></div>
+        <div className="pill pill-oro">🌕 Luna llena</div>
+        <h1 className="display" style={{ color: "var(--luna)" }}>Naciste, {s.nombre}</h1>
+        <p className="serif-quote">Te pariste a vos misma. Recorriste el camino entero, y volviste.</p>
+        <RuedaVida scores={s.scores} size={280} />
+        <p className="tiny">Tu Rueda de la Vida, hoy. Mirá todo lo que creció.</p>
       </div>
 
-      <button className="btn ghost mt" onClick={() => router.push("/jardin")}>Volver a mi jardín</button>
+      {s.despues == null ? (
+        <div className="card stack" style={{ marginTop: 22 }}>
+          <div className="eyebrow">Tu foto de hoy</div>
+          <h2 className="h2">Hoy, ¿qué tan conectada te sentís con vos misma?</h2>
+          <p className="tiny">Del 1 al 10. La misma pregunta del primer día.</p>
+          <div className="grid-2" style={{ gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
+            {Array.from({ length: 10 }).map((_, i) => {
+              const v = i + 1;
+              return <button key={v} className="chip" style={{ justifyContent: "center", padding: "14px 0" }} onClick={() => { setTermometroFinal(v); setS((x) => ({ ...x, despues: v })); }}><b className="num">{v}</b></button>;
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="card card-oro stack" style={{ marginTop: 22 }}>
+          <div className="eyebrow">De dónde saliste, a dónde llegaste</div>
+          <div className="between">
+            <div className="center" style={{ flex: 1 }}><div className="tiny">Al empezar</div><div className="num" style={{ fontSize: "2.2rem", color: "var(--ink-2)" }}>{s.antes ?? "—"}<span style={{ fontSize: ".9rem", color: "var(--ink-3)" }}>/10</span></div></div>
+            <span style={{ fontSize: "1.6rem", color: "var(--oro)" }}>→</span>
+            <div className="center" style={{ flex: 1 }}><div className="tiny">Hoy</div><div className="num" style={{ fontSize: "2.2rem", color: "var(--salvia)" }}>{s.despues}<span style={{ fontSize: ".9rem", color: "var(--ink-3)" }}>/10</span></div></div>
+          </div>
+        </div>
+      )}
+
+      {s.carta && (
+        <div className="card card-luna stack" style={{ marginTop: 16 }}>
+          <div className="eyebrow">La carta que te escribiste</div>
+          <p className="serif-quote" style={{ fontSize: "1.15rem" }}>“{s.carta}”</p>
+        </div>
+      )}
+
+      <div className="card stack" style={{ marginTop: 16 }}>
+        <p className="serif-quote" style={{ fontSize: "1.1rem" }}>{vozSolModulo[10]}</p>
+      </div>
+
+      <div className="stack" style={{ marginTop: 20 }}>
+        <button className="btn btn-oro btn-lg" onClick={() => setPreview(collageFinal({ frases: s.frases, lunas: 9 }))}>Crear el collage de mi renacimiento</button>
+        {preview && (
+          <div className="card stack">
+            <img src={preview} alt="Collage de tu renacimiento" style={{ width: "100%", borderRadius: "var(--r-1)" }} />
+            <div className="grid-2">
+              <button className="btn btn-primary" onClick={() => descargar(preview, "mi-renacimiento.png")}>Descargar</button>
+              <button className="btn btn-ghost" onClick={() => compartirTexto("Me parí a mí misma. 9 lunas con el Método R.E.N.A.C.E. de Sol Peirano 🌕")}>Compartir</button>
+            </div>
+          </div>
+        )}
+        <Link href="/mi-camino" className="link center" style={{ display: "block" }}>Volver a mi camino</Link>
+      </div>
     </div>
   );
 }
