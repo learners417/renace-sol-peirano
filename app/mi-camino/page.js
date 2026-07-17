@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Nav } from "@/components/ui";
+import { Icon } from "@/components/Icon";
 import { Luna } from "@/components/Luna";
 import {
   getUser, getPais, lunasCompletas, lunaActual, fullnessLuna, nacio,
@@ -11,6 +12,13 @@ import {
 } from "@/lib/estado";
 import { etapas, getModulo } from "@/lib/programa";
 
+function Estado({ done, abierto, activa, n }) {
+  if (done) return <span className="state state-done"><Icon name="check" size={18} /></span>;
+  if (!abierto) return <span className="state state-lock"><Icon name="candado" size={16} /></span>;
+  if (activa) return <span className="state state-now"><Icon name="puntoActivo" size={20} /></span>;
+  return <span className="state state-num">{n}</span>;
+}
+
 export default function MiCamino() {
   const router = useRouter();
   const [s, setS] = useState(null);
@@ -18,7 +26,7 @@ export default function MiCamino() {
   useEffect(() => {
     if (!getUser()) { router.replace("/acceso"); return; }
     setS({
-      pais: getPais(), completas: lunasCompletas(), actual: lunaActual(),
+      completas: lunasCompletas(), actual: lunaActual(),
       fullness: fullnessLuna(), nacio: nacio(),
       antes: promedioInicial(), despues: getTermometroFinal(),
       diasSin: diasDesdeUltimoPaso(),
@@ -27,18 +35,25 @@ export default function MiCamino() {
 
   if (!s) return <div className="app" style={{ minHeight: "100dvh" }} />;
 
+  const tools = [
+    { href: "/como-funciona", icon: "brujula", label: "Cómo funciona" },
+    { href: "/meditar", icon: "auriculares", label: "Meditar" },
+    { href: "/respirar", icon: "viento", label: "Respirar" },
+    { href: "/semillas", icon: "brote", label: "Mis semillas" },
+  ];
+
   return (
     <div className="app app-pad" style={{ paddingTop: 26 }}>
       <div className="center stack">
         <div className="eyebrow">Mi camino</div>
-        <div className="luna-hero"><Luna fase={s.nacio ? 1 : Math.max(0.06, s.fullness)} size={190} /></div>
-        <h1 className="h1" style={{ fontStyle: "italic", color: "var(--luna)" }}>Volver a vos, paso a paso</h1>
-        <p className="tiny">{s.nacio ? "Completaste tu camino 🌕" : `${s.completas} de 9 etapas · vas por la ${Math.min(s.actual, 9)}`}</p>
+        <div className="luna-hero"><Luna fase={s.nacio ? 1 : Math.max(0.06, s.fullness)} size={186} /></div>
+        <h1 className="h1" style={{ color: "var(--luna)" }}>Volver a vos, paso a paso</h1>
+        <p className="tiny">{s.nacio ? "Completaste tu camino" : `${s.completas} de 9 etapas · vas por la ${Math.min(s.actual, 9)}`}</p>
       </div>
 
       {s.diasSin != null && s.diasSin >= 3 && !s.nacio && (
         <div className="card" style={{ marginTop: 14, background: "var(--luna-wash)", borderColor: "#E7DEF0" }}>
-          <p className="tiny" style={{ color: "var(--luna)" }}>Hace {s.diasSin} días que no venís. Sin culpa: tu camino te espera. Cuando quieras, seguimos 🤍</p>
+          <p className="tiny" style={{ color: "var(--luna)" }}>Hace {s.diasSin} días que no venís. Sin culpa: tu camino te espera. Cuando quieras, seguimos.</p>
         </div>
       )}
 
@@ -48,13 +63,13 @@ export default function MiCamino() {
           <div className="between">
             <div className="center" style={{ flex: 1 }}>
               <div className="tiny">Al empezar</div>
-              <div className="num" style={{ fontSize: "1.8rem", color: "var(--ink-2)" }}>{s.antes}<span style={{ fontSize: ".85rem", color: "var(--ink-3)" }}>/10</span></div>
+              <div className="num" style={{ fontSize: "1.9rem", color: "var(--ink-2)" }}>{s.antes}<span style={{ fontSize: ".85rem", color: "var(--ink-3)" }}>/10</span></div>
             </div>
-            <span style={{ color: "var(--luna-soft)", fontSize: "1.4rem" }}>→</span>
+            <span style={{ color: "var(--luna-soft)" }}><Icon name="flecha" size={22} /></span>
             <div className="center" style={{ flex: 1 }}>
               <div className="tiny">{s.despues != null ? "Al graduarte" : "Al final"}</div>
-              <div className="num" style={{ fontSize: "1.8rem", color: s.despues != null ? "var(--salvia)" : "var(--ink-3)" }}>
-                {s.despues != null ? <>{s.despues}<span style={{ fontSize: ".85rem", color: "var(--ink-3)" }}>/10</span></> : "🌱"}
+              <div className="num" style={{ fontSize: "1.9rem", color: s.despues != null ? "var(--salvia)" : "var(--ink-3)" }}>
+                {s.despues != null ? <>{s.despues}<span style={{ fontSize: ".85rem", color: "var(--ink-3)" }}>/10</span></> : "—"}
               </div>
             </div>
           </div>
@@ -62,22 +77,19 @@ export default function MiCamino() {
       )}
 
       <div className="grid-2" style={{ marginTop: 14 }}>
-        <Link href="/como-funciona" className="card" style={{ textDecoration: "none", color: "inherit", textAlign: "center", padding: 14 }}><div style={{ fontSize: "1.4rem" }}>🧭</div><b>Cómo funciona</b></Link>
-        <Link href="/meditar" className="card" style={{ textDecoration: "none", color: "inherit", textAlign: "center", padding: 14 }}><div style={{ fontSize: "1.4rem" }}>🎧</div><b>Meditar</b></Link>
-        <Link href="/respirar" className="card" style={{ textDecoration: "none", color: "inherit", textAlign: "center", padding: 14 }}><div style={{ fontSize: "1.4rem" }}>🕊</div><b>Respirar</b></Link>
-        <Link href="/semillas" className="card" style={{ textDecoration: "none", color: "inherit", textAlign: "center", padding: 14 }}><div style={{ fontSize: "1.4rem" }}>🌱</div><b>Mis semillas</b></Link>
+        {tools.map((t) => (
+          <Link key={t.href} href={t.href} className="card" style={{ textDecoration: "none", color: "inherit", padding: 16, display: "flex", alignItems: "center", gap: 10 }}>
+            <span className="ico" style={{ color: "var(--luna)" }}><Icon name={t.icon} size={22} /></span>
+            <b style={{ fontSize: ".95rem" }}>{t.label}</b>
+          </Link>
+        ))}
       </div>
 
       <div style={{ marginTop: 24 }}>
         {etapas.map((et) => (
-          <div key={et.n} style={{ marginBottom: 18 }}>
-            <div className="row" style={{ marginBottom: 8 }}>
-              <span style={{ fontSize: "1.2rem" }}>{et.icono}</span>
-              <div>
-                <b style={{ fontFamily: "var(--serif)", fontSize: "1.15rem", color: "var(--luna)" }}>{et.nombre}</b>
-                <p className="tiny">{et.semanas}</p>
-              </div>
-            </div>
+          <div key={et.n} style={{ marginBottom: 20 }}>
+            <b style={{ fontFamily: "var(--serif)", fontSize: "1.2rem", color: "var(--luna)", display: "block", marginBottom: 2 }}>{et.nombre}</b>
+            <p className="tiny" style={{ marginBottom: 10 }}>{et.semanas}</p>
             <div className="stack">
               {et.modulos.filter((n) => n <= 9).map((n) => {
                 const m = getModulo(n);
@@ -89,16 +101,16 @@ export default function MiCamino() {
                 const inner = (
                   <div className="between">
                     <div className="row">
-                      <Luna fase={abierto ? Math.max(0.1, n / 9) : 0} size={36} halo={false} />
+                      <Estado done={done} abierto={abierto} activa={activa} n={n} />
                       <div>
                         <b style={{ color: abierto ? "inherit" : "var(--ink-3)" }}>Etapa {n} · {m.nombre}</b>
-                        <p className="tiny">{done ? "Completa 🌸" : abierto ? `${hechos}/${tot} clases` : "Se abre al terminar la anterior"}</p>
+                        <p className="tiny">{done ? "Completa" : abierto ? `${hechos}/${tot} clases` : "Se abre al terminar la anterior"}</p>
                       </div>
                     </div>
-                    <span style={{ color: "var(--luna-soft)" }}>{abierto ? "›" : "🔒"}</span>
+                    {abierto && <span style={{ color: "var(--luna-soft)" }}><Icon name="chevron" size={18} /></span>}
                   </div>
                 );
-                const style = { textDecoration: "none", color: "inherit", padding: 14, borderColor: activa ? "var(--luna-soft)" : "var(--hairline)", background: activa ? "var(--luna-wash)" : "var(--surface)", opacity: abierto ? 1 : 0.6 };
+                const style = { textDecoration: "none", color: "inherit", padding: 14, borderColor: activa ? "var(--luna-soft)" : "var(--hairline)", background: activa ? "var(--luna-wash)" : "var(--surface)", opacity: abierto ? 1 : 0.7 };
                 return abierto
                   ? <Link key={n} href={`/luna/${n}`} className="card" style={style}>{inner}</Link>
                   : <div key={n} className="card" style={style}>{inner}</div>;
@@ -108,7 +120,7 @@ export default function MiCamino() {
         ))}
       </div>
 
-      {s.nacio && <Link href="/graduacion" className="btn btn-oro btn-lg" style={{ marginTop: 8 }}>Ver mi graduación 🌕</Link>}
+      {s.nacio && <Link href="/graduacion" className="btn btn-oro btn-lg" style={{ marginTop: 8 }}>Ver mi graduación</Link>}
       <Nav />
     </div>
   );

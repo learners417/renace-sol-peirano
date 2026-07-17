@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -60,7 +61,7 @@ export default function Respirar() {
 
       <div className="breath-wrap">
         <div className="orb" style={{ animation: "none", transform: `scale(${activo ? f.scale : 0.85})`, transition: "transform 1s ease" }}>
-          {activo ? <div className="center"><div style={{ fontFamily: "var(--serif)", fontSize: "1.3rem" }}>{voseo ? f.l : f.lt}</div><div className="num" style={{ fontSize: "1.8rem" }}>{cuenta}</div></div> : "🕊"}
+          {activo ? <div className="center"><div style={{ fontFamily: "var(--serif)", fontSize: "1.3rem" }}>{voseo ? f.l : f.lt}</div><div className="num" style={{ fontSize: "1.8rem" }}>{cuenta}</div></div> : <Icon name="viento" size={40} />}
         </div>
       </div>
 

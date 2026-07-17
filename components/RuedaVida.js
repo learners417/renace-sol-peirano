@@ -34,15 +34,15 @@ export function RuedaVida({ scores = {}, size = 300, onArea }) {
       })}
       {/* área lograda */}
       <polygon points={poly} fill="url(#ruedaFill)" stroke="#7E6399" strokeWidth="2" strokeLinejoin="round" />
-      {/* vértices + etiquetas tocables */}
+      {/* vértices tocables (etiquetas completas llegan en el Lote 2) */}
       {AREAS.map((a, i) => {
         const s = Math.max(0.04, (scores[a.n] ?? 0) / 100);
         const [vx, vy] = pt(i, R * s);
-        const [lx, ly] = pt(i, R + 22);
+        const [ox, oy] = pt(i, R + 14);
         return (
           <g key={a.n} style={onArea ? { cursor: "pointer" } : undefined} onClick={onArea ? () => onArea(a.n) : undefined}>
+            <circle cx={ox} cy={oy} r="5" fill={a.color} opacity="0.85" />
             <circle cx={vx} cy={vy} r="4" fill={a.color} />
-            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fontSize="15">{a.emoji}</text>
           </g>
         );
       })}

@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Nav } from "@/components/ui";
@@ -20,7 +21,7 @@ export default function Semillas() {
     <div className="app app-pad" style={{ paddingTop: 22 }}>
       <button className="link" onClick={() => router.back()}>‹ Volver</button>
       <div className="center stack" style={{ marginTop: 8 }}>
-        <div style={{ fontSize: "2rem" }}>🌱</div>
+        <div className="ico" style={{ color: "var(--luna)" }}><Icon name="brote" size={30} /></div>
         <h1 className="h1">Mis semillas</h1>
         <p className="tiny">Las afirmaciones que fuiste guardando en tu camino.</p>
       </div>

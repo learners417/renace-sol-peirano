@@ -18,10 +18,10 @@
   --salvia: #8AA890;      /* verde salvia: crecimiento, "todo bien" */
   --salvia-wash: #EDF2ED;
 
-  /* — Texto — */
-  --ink: #2E2A32;         /* casi negro cálido */
-  --ink-2: #6B6472;       /* secundario */
-  --ink-3: #A79FAE;       /* terciario / placeholder */
+  /* — Texto (contraste subido para legibilidad y seriedad) — */
+  --ink: #241F29;         /* casi negro cálido, más profundo */
+  --ink-2: #574F60;       /* secundario, más oscuro que antes */
+  --ink-3: #837B8C;       /* terciario legible (ya no lavado) */
 
   /* — Profundidad (sombras difusas, tipo Apple Health) — */
   --sh-1: 0 1px 2px rgba(46,42,50,.04), 0 2px 8px rgba(46,42,50,.04);
@@ -83,7 +83,19 @@ body::before {
 .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--luna); }
 .lead { font-size: 1.05rem; color: var(--ink-2); }
 .serif-quote { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; line-height: 1.35; color: var(--luna); font-style: italic; }
+.serif-lead { font-family: var(--serif); font-weight: 600; font-size: 1.25rem; line-height: 1.3; color: var(--luna); font-style: normal; }
 .num { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+/* alineación de íconos con texto */
+.ico { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; }
+.ico-row { display: inline-flex; align-items: center; gap: 8px; }
+
+/* insignia de estado (reemplaza la luna-disco para etapas hecha/actual/bloqueada) */
+.state { width: 34px; height: 34px; min-width: 34px; border-radius: 50%; display: grid; place-items: center; }
+.state-done { background: var(--salvia-wash); color: #3F6349; }
+.state-now { background: var(--luna); color: #fff; box-shadow: 0 4px 14px rgba(126,99,153,.3); }
+.state-lock { background: var(--surface-2); color: var(--ink-3); }
+.state-num { background: var(--surface-2); color: var(--ink-2); font-weight: 800; font-size: .9rem; }
 
 /* — Tarjetas — */
 .card {
@@ -162,10 +174,9 @@ textarea.field { resize: vertical; min-height: 92px; line-height: 1.5; }
   border-top: 1px solid var(--hairline);
 }
 .nav-inner { max-width: var(--maxw); margin: 0 auto; display: flex; padding: 8px 18px calc(8px + env(safe-area-inset-bottom)); }
-.nav a { flex: 1; text-align: center; text-decoration: none; color: var(--ink-3); font-size: .72rem; font-weight: 700; padding: 6px 0; }
-.nav a .ic { display: block; font-size: 1.35rem; margin-bottom: 2px; filter: grayscale(.4); opacity: .7; }
+.nav a { flex: 1; text-align: center; text-decoration: none; color: var(--ink-3); font-size: .7rem; font-weight: 700; padding: 6px 0; }
+.nav a .ic { display: flex; justify-content: center; margin-bottom: 3px; }
 .nav a.on { color: var(--luna); }
-.nav a.on .ic { filter: none; opacity: 1; }
 
 /* — Ritual a pantalla completa — */
 .ritual { position: fixed; inset: 0; z-index: 60; background: var(--bg); display: flex; flex-direction: column; }

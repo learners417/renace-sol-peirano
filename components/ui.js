@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Icon } from "@/components/Icon";
 
 const TABS = [
-  { href: "/hoy", ic: "☀️", label: "Hoy" },
-  { href: "/mi-camino", ic: "🌙", label: "Mi camino" },
-  { href: "/mi-renacer", ic: "🌿", label: "Mi renacer" },
-  { href: "/serena", ic: "🤍", label: "Serena" },
+  { href: "/hoy", icon: "sol", label: "Hoy" },
+  { href: "/mi-camino", icon: "luna", label: "Mi camino" },
+  { href: "/mi-renacer", icon: "hoja", label: "Mi renacer" },
+  { href: "/serena", icon: "corazon", label: "Serena" },
 ];
 
 export function Nav() {
@@ -16,7 +17,7 @@ export function Nav() {
       <div className="nav-inner">
         {TABS.map((t) => (
           <Link key={t.href} href={t.href} className={path.startsWith(t.href) ? "on" : ""}>
-            <span className="ic">{t.ic}</span>
+            <span className="ic"><Icon name={t.icon} size={23} /></span>
             {t.label}
           </Link>
         ))}

@@ -2,15 +2,25 @@ import "./globals.css";
 
 export const metadata = {
   title: "El Camino R.E.N.A.C.E.",
-  description: "Nueve lunas para volver a vos. Un programa de Sol Peirano.",
-  manifest: undefined,
+  description: "Volver a vos. Un programa de Sol Peirano.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/favicon-32.png",
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "R.E.N.A.C.E.",
+  },
 };
 
 export const viewport = {
-  themeColor: "#FBF7F2",
+  themeColor: "#7E6399",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }) {

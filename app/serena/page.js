@@ -56,7 +56,7 @@ export default function Serena() {
     <div className="app app-pad" style={{ paddingTop: 22, display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
       <div className="center" style={{ marginBottom: 10 }}>
         <div className="eyebrow">Serena</div>
-        <p className="tiny">Tu compañera, con la voz de Sol · no reemplaza a un profesional</p>
+        <p className="tiny">Tu compañera con IA, que te responde con la voz y el método de Sol. Elegí cómo querés hablarle. No reemplaza a un profesional.</p>
       </div>
 
       <div className="row" style={{ gap: 8, marginBottom: 10 }}>

@@ -12,7 +12,7 @@ export default function Acceso() {
   const [cargando, setCargando] = useState(false);
 
   async function entrar() {
-    if (!nombre.trim()) { setErr("Escribí tu nombre 🤍"); return; }
+    if (!nombre.trim()) { setErr("Escribí tu nombre"); return; }
     if (!codigo.trim()) { setErr("Escribí tu código de acceso"); return; }
     setCargando(true); setErr("");
     try {

@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -33,9 +34,9 @@ export default function Graduacion() {
     <div className="app app-pad" style={{ paddingTop: 30 }}>
       <div className="center stack">
         <div className="luna-hero"><Luna fase={1} size={200} /></div>
-        <div className="pill pill-oro">🌕 Luna llena</div>
-        <h1 className="display" style={{ color: "var(--luna)" }}>Naciste, {s.nombre}</h1>
-        <p className="serif-quote">Te pariste a vos misma. Recorriste el camino entero, y volviste.</p>
+        <div className="pill pill-oro">Luna llena</div>
+        <h1 className="display" style={{ color: "var(--luna)" }}>Renaciste, {s.nombre}</h1>
+        <p className="serif-quote">A una nueva versión de vos. Recorriste el camino entero, y volviste.</p>
         <RuedaVida scores={s.scores} size={280} />
         <p className="tiny">Tu Rueda de la Vida, hoy. Mirá todo lo que creció.</p>
       </div>
@@ -57,7 +58,7 @@ export default function Graduacion() {
           <div className="eyebrow">De dónde saliste, a dónde llegaste</div>
           <div className="between">
             <div className="center" style={{ flex: 1 }}><div className="tiny">Al empezar</div><div className="num" style={{ fontSize: "2.2rem", color: "var(--ink-2)" }}>{s.antes ?? "—"}<span style={{ fontSize: ".9rem", color: "var(--ink-3)" }}>/10</span></div></div>
-            <span style={{ fontSize: "1.6rem", color: "var(--oro)" }}>→</span>
+            <span className="ico" style={{ color: "var(--oro)" }}><Icon name="flecha" size={22} /></span>
             <div className="center" style={{ flex: 1 }}><div className="tiny">Hoy</div><div className="num" style={{ fontSize: "2.2rem", color: "var(--salvia)" }}>{s.despues}<span style={{ fontSize: ".9rem", color: "var(--ink-3)" }}>/10</span></div></div>
           </div>
         </div>
@@ -81,7 +82,7 @@ export default function Graduacion() {
             <img src={preview} alt="Collage de tu renacimiento" style={{ width: "100%", borderRadius: "var(--r-1)" }} />
             <div className="grid-2">
               <button className="btn btn-primary" onClick={() => descargar(preview, "mi-renacimiento.png")}>Descargar</button>
-              <button className="btn btn-ghost" onClick={() => compartirTexto("Me parí a mí misma. 9 lunas con el Método R.E.N.A.C.E. de Sol Peirano 🌕")}>Compartir</button>
+              <button className="btn btn-ghost" onClick={() => compartirTexto("Renací, a una nueva versión de mí. Con el Método R.E.N.A.C.E. de Sol Peirano")}>Compartir</button>
             </div>
           </div>
         )}

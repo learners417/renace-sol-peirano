@@ -98,8 +98,18 @@ export default function Ritual() {
           <div className="stack">
             <div className="eyebrow">Paso 2 · {t("tuClase", pais)}</div>
             <h2 className="h2" style={{ fontStyle: "italic", color: "var(--luna)" }}>{video.titulo}</h2>
-            <Video url={video.videoUrl} titulo={video.titulo} />
-            <p className="muted">{video.desc}</p>
+            {video.videoUrl ? (
+              <>
+                <Video url={video.videoUrl} titulo={video.titulo} />
+                <p className="muted">{video.desc}</p>
+              </>
+            ) : (
+              <div className="card card-luna">
+                <div className="eyebrow">Tu cierre</div>
+                <p className="muted" style={{ marginTop: 6 }}>{video.desc}</p>
+                <p className="serif-lead" style={{ marginTop: 12 }}>{video.idea}</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -130,7 +140,7 @@ export default function Ritual() {
               <p className="serif-quote" style={{ fontSize: "1.4rem", marginTop: 12 }}>{semilla}</p>
             </div>
             <div className="grid-2">
-              <button className={"btn " + (semillaGuardada ? "btn-soft" : "btn-ghost")} onClick={() => setSemillaGuardada((s) => !s)}>{semillaGuardada ? "Guardada 🤍" : t("guardar", pais)}</button>
+              <button className={"btn " + (semillaGuardada ? "btn-soft" : "btn-ghost")} onClick={() => setSemillaGuardada((s) => !s)}>{semillaGuardada ? "Guardada" : t("guardar", pais)}</button>
               <button className="btn btn-ghost" onClick={() => compartirTexto(`"${semilla}"\n\n— Mi camino R.E.N.A.C.E. con Sol Peirano`)}>{t("compartir", pais)}</button>
             </div>
           </div>
@@ -151,7 +161,7 @@ export default function Ritual() {
             <h2 className="h1" style={{ color: "var(--luna)" }}>{t("listoHoy", pais)}</h2>
             <p className="lead">{t("aVivir", pais)}</p>
             <div className="card card-luna" style={{ marginTop: 8, textAlign: "left" }}>
-              <b style={{ color: "var(--luna)" }}>🌱 ¿Hoy viviste algo distinto?</b>
+              <b style={{ color: "var(--luna)" }}>¿Hoy viviste algo distinto?</b>
               <p className="tiny" style={{ marginTop: 4 }}>Un momento donde antes reaccionabas de una forma y hoy fue otra. Registralo — así crece tu rueda.</p>
               <button className="btn btn-soft" style={{ marginTop: 10 }} onClick={() => { commit(); router.replace("/mi-renacer"); }}>Registrar un logro</button>
             </div>
@@ -164,7 +174,7 @@ export default function Ritual() {
           ? (
             <div className="grid-2">
               <button className="btn btn-ghost" onClick={terminar}>Terminar por hoy</button>
-              <button className="btn btn-primary" onClick={continuar}>Seguir con el siguiente →</button>
+              <button className="btn btn-primary" onClick={continuar}>Seguir con el siguiente</button>
             </div>
           )
           : <button className="btn btn-primary btn-lg" onClick={siguiente} disabled={cur === "check" && !animo}>{t("siguiente", pais)}</button>}
