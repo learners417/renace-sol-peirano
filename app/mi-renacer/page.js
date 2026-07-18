@@ -6,29 +6,16 @@ import { Icon } from "@/components/Icon";
 import { RuedaVida } from "@/components/RuedaVida";
 import { getUser, getHitos, agregarHito, areaScore, lunaActual, getDiario } from "@/lib/estado";
 import { AREAS, areaDe } from "@/lib/vida";
+import { achicarFoto } from "@/lib/foto";
 import { collageFinal, descargar } from "@/lib/collage";
 import { compartirTexto } from "@/lib/compartir";
 
 const ANIMO = ["😮‍💨", "😔", "😐", "🙂", "🌷"];
+const PESOS = [{ p: 1, l: "Un pasito" }, { p: 2, l: "Bastante" }, { p: 3, l: "Un montón" }];
+const PESO_L = { 1: "un pasito", 2: "bastante", 3: "un montón" };
 
-function achicar(file, cb) {
-  const r = new FileReader();
-  r.onload = () => {
-    const img = new Image();
-    img.onload = () => {
-      const max = 360, k = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = img.width * k; c.height = img.height * k;
-      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      cb(c.toDataURL("image/jpeg", 0.7));
-    };
-    img.src = r.result;
-  };
-  r.readAsDataURL(file);
-}
-
-function Dot({ color }) {
-  return <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, display: "inline-block", flex: "0 0 auto" }} />;
+function Dot({ color, size = 10 }) {
+  return <span style={{ width: size, height: size, borderRadius: "50%", background: color, display: "inline-block", flex: "0 0 auto" }} />;
 }
 
 export default function MiRenacer() {
@@ -37,8 +24,8 @@ export default function MiRenacer() {
   const [diario, setDiario] = useState([]);
   const [scores, setScores] = useState({});
   const [area, setArea] = useState(null);
+  const [peso, setPeso] = useState(0);
   const [texto, setTexto] = useState("");
-  const [animo, setAnimo] = useState(0);
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
   const fileRef = useRef();
@@ -56,9 +43,9 @@ export default function MiRenacer() {
   }, [router]);
 
   function guardar() {
-    if (!texto.trim()) return;
-    agregarHito({ texto, area, animo: animo || null, foto });
-    setTexto(""); setAnimo(0); setFoto(null);
+    if (!area || !peso) return;
+    agregarHito({ texto, area, peso, foto });
+    setPeso(0); setTexto(""); setFoto(null);
     refrescar();
   }
 
@@ -73,8 +60,10 @@ export default function MiRenacer() {
         <RuedaVida scores={scores} size={300} onArea={(n) => setArea(n)} />
       </div>
 
+      {/* Registrar un logro — simple y numérico */}
       <div className="card stack" style={{ marginTop: 8 }}>
         <div className="eyebrow">Registrar un logro</div>
+        <p className="tiny">¿En qué área notaste un cambio? Tocá, marcá cuánto, y listo. Escribir es opcional.</p>
         <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>
           {AREAS.map((ar) => (
             <button key={ar.n} className="chip" style={{ width: "auto", padding: "8px 12px", gap: 8, border: area === ar.n ? "1px solid var(--luna)" : "1px solid var(--hairline)", background: area === ar.n ? "var(--luna-wash)" : "var(--surface)" }} onClick={() => setArea(ar.n)}>
@@ -82,22 +71,27 @@ export default function MiRenacer() {
             </button>
           ))}
         </div>
-        <p className="serif-lead">{a.pregunta}</p>
-        <textarea className="field" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Contá lo que pasó, con tus palabras…" />
-        <div className="between">
-          <div className="row" style={{ gap: 6 }}>
-            {ANIMO.map((e, i) => (
-              <button key={i} className={"chip" + (animo === i + 1 ? " sel" : "")} style={{ width: "auto", padding: "8px 10px", fontSize: "1.1rem" }} onClick={() => setAnimo(i + 1)}>{e}</button>
+        <div>
+          <p className="tiny" style={{ fontWeight: 700, marginBottom: 6 }}>¿Cuánto creció?</p>
+          <div className="grid-2" style={{ gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+            {PESOS.map((x) => (
+              <button key={x.p} className={"chip" + (peso === x.p ? " sel" : "")} style={{ justifyContent: "center", padding: "12px 4px", flexDirection: "column", gap: 4 }} onClick={() => setPeso(x.p)}>
+                <span className="row" style={{ gap: 2 }}>{Array.from({ length: x.p }).map((_, i) => <Dot key={i} color={a.color} size={7} />)}</span>
+                <span className="tiny">{x.l}</span>
+              </button>
             ))}
           </div>
-          <button className="link ico-row" onClick={() => fileRef.current?.click()} style={{ gap: 6 }}><Icon name="camara" size={18} />{foto ? "Foto lista" : "Evidencia"}</button>
-          <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && achicar(e.target.files[0], setFoto)} />
         </div>
-        {foto && <img src={foto} alt="evidencia" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 10 }} />}
-        <button className="btn btn-primary" onClick={guardar} disabled={!texto.trim()}>Guardar mi logro</button>
+        <div className="between">
+          <button className="link ico-row" style={{ gap: 6 }} onClick={() => fileRef.current?.click()}><Icon name="camara" size={18} />{foto ? "Foto lista" : "Evidencia"}</button>
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && achicarFoto(e.target.files[0], setFoto)} />
+          {foto && <img src={foto} alt="evidencia" style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8 }} />}
+        </div>
+        <textarea className="field" style={{ minHeight: 60 }} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Contarlo es opcional: ¿qué pasó? (ej: hoy no le grité)" />
+        <button className="btn btn-primary" onClick={guardar} disabled={!area || !peso}>Guardar mi logro</button>
       </div>
 
-      <button className="btn btn-soft ico-row" style={{ marginTop: 14, justifyContent: "center" }} disabled={!hitos.length} onClick={() => setPreview(collageFinal({ frases: hitos.filter((h) => h.texto).slice(0, 6).map((h) => h.texto), lunas: 9 }))}>
+      <button className="btn btn-soft ico-row" style={{ marginTop: 14, justifyContent: "center" }} disabled={!diario.length} onClick={() => setPreview(collageFinal({ frases: diario.filter((e) => e.texto).slice(0, 6).map((e) => e.texto), lunas: 9 }))}>
         <Icon name="luna" size={18} /> Armar mi collage
       </button>
       {preview && (
@@ -113,16 +107,16 @@ export default function MiRenacer() {
 
       <div className="stack" style={{ marginTop: 22 }}>
         <div className="eyebrow">Tus logros</div>
-        {hitos.length === 0 && <div className="card center muted">Todavía no registraste ninguno. Tu primer logro puede ser hoy — algo chiquito que hiciste distinto.</div>}
+        {hitos.length === 0 && <div className="card center muted">Todavía no registraste ninguno. Cuando algo cambie en tu vida —por chiquito que sea— marcalo acá.</div>}
         {hitos.map((h, i) => {
           const ar = areaDe(h.area);
           return (
             <div key={i} className="card" style={{ padding: 14 }}>
               <div className="between" style={{ marginBottom: 6 }}>
                 <span className="pill pill-luna ico-row"><Dot color={ar.color} /> {ar.label}</span>
-                <span className="tiny">{ANIMO[h.animo - 1] || ""} {new Date(h.fecha).toLocaleDateString()}</span>
+                <span className="tiny">Creciste {PESO_L[h.peso] || "un pasito"} · {new Date(h.fecha).toLocaleDateString()}</span>
               </div>
-              <p>{h.texto}</p>
+              {h.texto && <p>{h.texto}</p>}
               {h.foto && <img src={h.foto} alt="evidencia" style={{ marginTop: 8, width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 10 }} />}
             </div>
           );
@@ -138,7 +132,8 @@ export default function MiRenacer() {
                 <span className="tiny">{ANIMO[e.animo - 1] || ""}</span>
                 <span className="tiny">{new Date(e.fecha).toLocaleDateString()}</span>
               </div>
-              <p>{e.texto}</p>
+              {e.texto && <p>{e.texto}</p>}
+              {e.foto && <img src={e.foto} alt="evidencia" style={{ marginTop: 8, width: "100%", maxHeight: 180, objectFit: "cover", borderRadius: 10 }} />}
             </div>
           ))}
         </div>

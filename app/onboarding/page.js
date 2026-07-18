@@ -33,7 +33,7 @@ export default function Onboarding() {
       {paso === 0 && (
         <div className="stack center">
           <div className="luna-hero"><Luna fase={0.06} size={120} /></div>
-          <h1 className="h1">Hola, {nombre} 🤍</h1>
+          <h1 className="h1">Hola, {nombre}</h1>
           <p className="serif-quote" style={{ margin: "8px 0" }}>{mensajeSolInicio}</p>
           <button className="btn btn-primary btn-lg" onClick={next}>Empezar</button>
         </div>
@@ -88,7 +88,7 @@ export default function Onboarding() {
             <label className="tiny" style={{ fontWeight: 700 }}>Una carta corta para vos, para leer al final del camino:</label>
             <textarea className="field" style={{ marginTop: 6 }} value={carta} onChange={(e) => setCarta(e.target.value)} placeholder="Querida yo, hoy empiezo este camino porque…" />
           </div>
-          <button className="btn btn-primary btn-lg" onClick={finish} disabled={!termometro}>Empezar mi primera luna 🌙</button>
+          <button className="btn btn-primary btn-lg" onClick={finish} disabled={!termometro}>Empezar mi primera luna</button>
         </div>
       )}
     </div>

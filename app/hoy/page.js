@@ -6,7 +6,7 @@ import { Nav } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { Luna } from "@/components/Luna";
 import {
-  getUser, getOnboarding, getPais, esHoraDificil,
+  getUser, getOnboarding, getPais, esHoraDificil, rachaAmable,
   pasoCompletadoHoy, indiceActual, lunaActual, nacio, progresoLunaActual,
 } from "@/lib/estado";
 import { getModulo, TOTAL_PASOS } from "@/lib/programa";
@@ -22,7 +22,7 @@ export default function Hoy() {
     setListo({
       nombre: getUser().nombre, pais: getPais(),
       hechoHoy: pasoCompletadoHoy(), luna: lunaActual(), idx: indiceActual(),
-      nacio: nacio(), prog: progresoLunaActual(), dificil: esHoraDificil(), hora: new Date().getHours(),
+      nacio: nacio(), prog: progresoLunaActual(), dificil: esHoraDificil(), hora: new Date().getHours(), racha: rachaAmable(),
     });
   }, [router]);
 
@@ -39,6 +39,7 @@ export default function Hoy() {
         <div>
           <p className="tiny" style={{ marginBottom: 2 }}>{t(saludoKey, pais)},</p>
           <h1 className="h1">{nombre}</h1>
+          {listo.racha >= 2 && <p className="tiny ico-row" style={{ gap: 5, color: "var(--oro)", fontWeight: 700, marginTop: 2 }}><Icon name="brillo" size={14} /> {listo.racha} días seguidos</p>}
         </div>
         <Luna fase={listo.nacio ? 1 : Math.max(0.08, (luna - 1 + listo.prog) / 9)} size={62} halo={false} />
       </div>
@@ -58,7 +59,7 @@ export default function Hoy() {
             </div>
           )}
           <div className="card card-luna">
-            <div className="pill pill-luna" style={{ marginBottom: 10 }}>{luna >= 10 ? "Tu último paso · El Nacimiento" : `Etapa ${luna} · Día ${diaN}`}</div>
+            <div className="pill pill-luna" style={{ marginBottom: 10 }}>{luna >= 10 ? "Tu último paso · El Nacimiento" : `Luna ${luna} · Día ${diaN}`}</div>
             <h2 className="h2" style={{ color: "var(--luna)" }}>{modActual?.nombre}</h2>
             <p className="muted" style={{ marginTop: 6 }}>{modActual?.intro}</p>
           </div>

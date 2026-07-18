@@ -1,51 +1,50 @@
 "use client";
 import { AREAS } from "@/lib/vida";
 
-// Rueda de la Vida: radar de 9 ejes. Cada área crece con el cambio real.
+// Rueda de la Vida (v2): 9 gajos que se llenan desde el centro según el logro real.
+// Se ve como una rueda desde el día 1 (con todo en cero muestra el contorno tenue),
+// y cada gajo crece con lo que ella registra. Legible en móvil.
 export function RuedaVida({ scores = {}, size = 300, onArea }) {
-  const cx = size / 2, cy = size / 2, R = size / 2 - 44;
-  const N = AREAS.length;
-  const ang = (i) => (Math.PI * 2 * i) / N - Math.PI / 2; // arranca arriba
-  const pt = (i, r) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
+  const cx = size / 2, cy = size / 2, R = size / 2 - 52;
+  const N = AREAS.length, step = (Math.PI * 2) / N, gap = 0.03;
 
-  const poly = AREAS.map((a, i) => {
-    const s = Math.max(0.04, (scores[a.n] ?? 0) / 100);
-    const [x, y] = pt(i, R * s);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
+  const slice = (i, r) => {
+    const a1 = -Math.PI / 2 + i * step + gap;
+    const a2 = -Math.PI / 2 + (i + 1) * step - gap;
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+    return `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
+  };
+  const labelPos = (i) => {
+    const a = -Math.PI / 2 + (i + 0.5) * step;
+    return [cx + (R + 16) * Math.cos(a), cy + (R + 16) * Math.sin(a), Math.cos(a)];
+  };
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Tu rueda de la vida">
-      <defs>
-        <radialGradient id="ruedaFill" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(126,99,153,.32)" />
-          <stop offset="100%" stopColor="rgba(185,164,212,.22)" />
-        </radialGradient>
-      </defs>
       {/* anillos guía */}
-      {[0.33, 0.66, 1].map((k) => (
-        <polygon key={k} points={AREAS.map((_, i) => pt(i, R * k).map((v) => v.toFixed(1)).join(",")).join(" ")}
-          fill="none" stroke="#ECE6DF" strokeWidth="1" />
+      {[0.5, 1].map((k) => (
+        <circle key={k} cx={cx} cy={cy} r={R * k} fill="none" stroke="#ECE6DF" strokeWidth="1" />
       ))}
-      {/* ejes */}
-      {AREAS.map((_, i) => {
-        const [x, y] = pt(i, R);
-        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#F0EBE4" strokeWidth="1" />;
-      })}
-      {/* área lograda */}
-      <polygon points={poly} fill="url(#ruedaFill)" stroke="#7E6399" strokeWidth="2" strokeLinejoin="round" />
-      {/* vértices tocables (etiquetas completas llegan en el Lote 2) */}
       {AREAS.map((a, i) => {
-        const s = Math.max(0.04, (scores[a.n] ?? 0) / 100);
-        const [vx, vy] = pt(i, R * s);
-        const [ox, oy] = pt(i, R + 14);
+        const sc = Math.max(0, Math.min(1, (scores[a.n] ?? 0) / 100));
+        const [lx, ly, cosv] = labelPos(i);
         return (
           <g key={a.n} style={onArea ? { cursor: "pointer" } : undefined} onClick={onArea ? () => onArea(a.n) : undefined}>
-            <circle cx={ox} cy={oy} r="5" fill={a.color} opacity="0.85" />
-            <circle cx={vx} cy={vy} r="4" fill={a.color} />
+            {/* pista (contorno tenue: hace que se vea la rueda aun en cero) */}
+            <path d={slice(i, R)} fill={a.color} opacity="0.1" />
+            {/* logro real */}
+            {sc > 0 && <path d={slice(i, Math.max(R * 0.08, R * sc))} fill={a.color} opacity="0.82" />}
+            {/* etiqueta */}
+            <text x={lx} y={ly} fontSize="9.5" fontWeight="700"
+              fill="#574F60" textAnchor={cosv > 0.25 ? "start" : cosv < -0.25 ? "end" : "middle"}
+              dominantBaseline="middle" style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
+              {a.label}
+            </text>
           </g>
         );
       })}
+      <circle cx={cx} cy={cy} r="3" fill="#7E6399" />
     </svg>
   );
 }

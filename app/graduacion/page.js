@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Luna } from "@/components/Luna";
 import { RuedaVida } from "@/components/RuedaVida";
-import { getUser, getOnboarding, promedioInicial, getTermometroFinal, setTermometroFinal, getHitos, areaScore, nacio } from "@/lib/estado";
+import { getUser, getOnboarding, promedioInicial, getTermometroFinal, setTermometroFinal, getDiario, areaScore, nacio } from "@/lib/estado";
 import { AREAS } from "@/lib/vida";
 import { vozSolModulo } from "@/lib/programa";
 import { collageFinal, descargar } from "@/lib/collage";
@@ -24,7 +24,7 @@ export default function Graduacion() {
       nombre: getUser().nombre, carta: ob?.carta || "",
       antes: promedioInicial(), despues: getTermometroFinal(),
       nacio: nacio(), scores,
-      frases: getHitos().filter((e) => e.texto).map((e) => e.texto),
+      frases: getDiario().filter((e) => e.texto).map((e) => e.texto),
     });
   }, [router]);
 

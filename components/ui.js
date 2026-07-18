@@ -29,7 +29,7 @@ export function Nav() {
 export function Video({ url, titulo }) {
   if (!url) return (
     <div className="card" style={{ textAlign: "center", color: "var(--ink-2)" }}>
-      El video de esta clase se carga pronto 🌙
+      El video de esta clase se carga pronto.
     </div>
   );
   return (

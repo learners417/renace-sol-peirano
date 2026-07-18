@@ -2,14 +2,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Nav } from "@/components/ui";
+import { Icon } from "@/components/Icon";
 import { getUser, getPais, lunaActual } from "@/lib/estado";
 import { getModulo, etapaDeModulo } from "@/lib/programa";
 import { t } from "@/lib/voz";
 
 const MODOS = [
-  { id: "companera", label: "Compañera", ic: "🤍", intro: "Estoy acá para lo que traigas hoy. Contame, sin filtro." },
-  { id: "dialogo", label: "Con mi pareja", ic: "💬", intro: "Preparemos juntas esa conversación difícil. ¿Qué está pasando con tu pareja?" },
-  { id: "juego", label: "Con mi hijo/a", ic: "🧸", intro: "¿Qué edad tiene tu peque? Pensamos una actividad o cómo manejar un momento." },
+  { id: "companera", label: "Compañera", ic: "corazon", intro: "Estoy acá para lo que traigas hoy. Contame, sin filtro." },
+  { id: "dialogo", label: "Con mi pareja", ic: "charla", intro: "Preparemos juntas esa conversación difícil. ¿Qué está pasando con tu pareja?" },
+  { id: "juego", label: "Con mi hijo/a", ic: "jugar", intro: "¿Qué edad tiene tu peque? Pensamos una actividad o cómo manejar un momento." },
 ];
 
 export default function Serena() {
@@ -48,7 +49,7 @@ export default function Serena() {
       const d = await r.json();
       setMsgs((m) => [...m, { role: "app", texto: d.texto }]);
     } catch {
-      setMsgs((m) => [...m, { role: "app", texto: "Se me cortó la conexión un momento. Probá de nuevo 🤍" }]);
+      setMsgs((m) => [...m, { role: "app", texto: "Se me cortó la conexión un momento. Probá de nuevo." }]);
     } finally { setCargando(false); }
   }
 
@@ -62,7 +63,7 @@ export default function Serena() {
       <div className="row" style={{ gap: 8, marginBottom: 10 }}>
         {MODOS.map((m) => (
           <button key={m.id} className={"agent-tab" + (modo === m.id ? " on" : "")} onClick={() => setModo(m.id)}>
-            <span style={{ fontSize: "1.1rem", display: "block" }}>{m.ic}</span>{m.label}
+            <span className="ico" style={{ display: "flex", justifyContent: "center", marginBottom: 3 }}><Icon name={m.ic} size={20} /></span>{m.label}
           </button>
         ))}
       </div>

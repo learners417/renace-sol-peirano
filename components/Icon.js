@@ -26,6 +26,9 @@ const P = {
   brillo: <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z" />,
   gota: <path d="M12 3s6 6.5 6 10.5A6 6 0 0 1 6 13.5C6 9.5 12 3 12 3z" />,
 
+  charla: <><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z" /><path d="M8 9h8M8 12h5" /></>,
+  jugar: <><circle cx="12" cy="12" r="8.5" /><path d="M12 3.5c3 2.4 3 14.6 0 17M3.5 12h17" /></>,
+
   // Acciones
   flecha: <path d="M5 12h13M13 6l6 6-6 6" />,
   chevron: <path d="M9 5l7 7-7 7" />,

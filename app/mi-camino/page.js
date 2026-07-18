@@ -48,7 +48,7 @@ export default function MiCamino() {
         <div className="eyebrow">Mi camino</div>
         <div className="luna-hero"><Luna fase={s.nacio ? 1 : Math.max(0.06, s.fullness)} size={186} /></div>
         <h1 className="h1" style={{ color: "var(--luna)" }}>Volver a vos, paso a paso</h1>
-        <p className="tiny">{s.nacio ? "Completaste tu camino" : `${s.completas} de 9 etapas · vas por la ${Math.min(s.actual, 9)}`}</p>
+        <p className="tiny">{s.nacio ? "Completaste tu camino" : `${s.completas} de 9 lunas · vas por la ${Math.min(s.actual, 9)}`}</p>
       </div>
 
       {s.diasSin != null && s.diasSin >= 3 && !s.nacio && (
@@ -103,7 +103,7 @@ export default function MiCamino() {
                     <div className="row">
                       <Estado done={done} abierto={abierto} activa={activa} n={n} />
                       <div>
-                        <b style={{ color: abierto ? "inherit" : "var(--ink-3)" }}>Etapa {n} · {m.nombre}</b>
+                        <b style={{ color: abierto ? "inherit" : "var(--ink-3)" }}>Luna {n} · {m.nombre}</b>
                         <p className="tiny">{done ? "Completa" : abierto ? `${hechos}/${tot} clases` : "Se abre al terminar la anterior"}</p>
                       </div>
                     </div>

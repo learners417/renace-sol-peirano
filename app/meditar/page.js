@@ -31,7 +31,7 @@ export default function Meditar() {
                   <span className="ico" style={{ color: "var(--luna)" }}><Icon name="auriculares" size={22} /></span>
                   <div>
                     <b style={{ fontSize: ".95rem" }}>{m.nombre}</b>
-                    <p className="tiny">Etapa {m.modulo} · {mod?.nombre}</p>
+                    <p className="tiny">Luna {m.modulo} · {mod?.nombre}</p>
                   </div>
                 </div>
                 {m.audioUrl

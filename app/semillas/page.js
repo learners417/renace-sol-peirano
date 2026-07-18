@@ -37,7 +37,7 @@ export default function Semillas() {
       )}
 
       <div className="stack" style={{ marginTop: 18 }}>
-        {semillas.length === 0 && <div className="card center muted">Todavía no guardaste ninguna. En tu ritual, tocá “Guardar” en la semilla del día.</div>}
+        {semillas.length === 0 && <div className="card center muted">Todavía no sembraste ninguna. Al final de tu sesión de hoy vas a escribir tu primera semilla.</div>}
         {semillas.map((s, i) => (
           <div key={i} className="card card-luna">
             <p className="serif-quote" style={{ fontSize: "1.15rem" }}>{s}</p>

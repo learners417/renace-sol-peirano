@@ -7,6 +7,8 @@ import { Nav } from "@/components/ui";
 import { getUser } from "@/lib/estado";
 import { comoFunciona } from "@/lib/programa";
 
+const ICONO = { "☀️": "sol", "🌱": "brote", "🤍": "corazon", "🎯": "brujula", "🌷": "hoja", "🌿": "hoja", "🕊": "viento", "📱": "brillo", "🌙": "luna" };
+
 export default function ComoFunciona() {
   const router = useRouter();
   useEffect(() => { if (!getUser()) router.replace("/acceso"); }, [router]);
@@ -24,7 +26,7 @@ export default function ComoFunciona() {
         {comoFunciona.map((c, i) => (
           <div key={i} className="card">
             <div className="row" style={{ alignItems: "flex-start" }}>
-              <span style={{ fontSize: "1.6rem" }}>{c.icono}</span>
+              <span className="ico" style={{ color: "var(--luna)" }}><Icon name={ICONO[c.icono] || "brillo"} size={24} /></span>
               <div>
                 <b>{c.titulo}</b>
                 <p className="muted" style={{ marginTop: 4 }}>{c.texto}</p>
