@@ -8,6 +8,14 @@ export const metadata = {
     icon: "/favicon-32.png",
     apple: "/apple-touch-icon.png",
   },
+  openGraph: {
+    title: "El Camino R.E.N.A.C.E.",
+    description: "Volver a vos. Un programa de Sol Peirano.",
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
+    type: "website",
+    locale: "es_AR",
+  },
+  twitter: { card: "summary_large_image", images: ["/og.png"] },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

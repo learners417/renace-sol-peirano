@@ -1,5 +1,5 @@
 // Valida el código de acceso. Prefijo -> plan. Configurable por env RENACE_CODES.
-const PREFIJOS = { "CAMINO-": "camino", "ACOMP-": "acompanada", "INTEGRAL-": "integral" };
+const PREFIJOS = { "CAMINO-": "camino", "ACOMP-": "acompanada", "INTEGRAL-": "integral", "SEMANA1-": "semana1", "EXTENSION-": "extension", "RENACIDA-": "renacida" };
 
 export async function POST(req) {
   let body = {};

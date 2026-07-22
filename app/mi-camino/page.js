@@ -7,10 +7,13 @@ import { Icon } from "@/components/Icon";
 import { Luna } from "@/components/Luna";
 import {
   getUser, getPais, lunasCompletas, lunaActual, fullnessLuna, nacio,
-  promedioInicial, getTermometroFinal, moduloCompleto, moduloDesbloqueado,
-  pasosHechosModulo, diasDesdeUltimoPaso,
+  promedioInicial, getTermometroFinal, moduloCompleto, semanaDesbloqueada,
+  pasosHechosModulo, diasDesdeUltimoPaso, sesionActual, migrarSesiones,
 } from "@/lib/estado";
 import { etapas, getModulo } from "@/lib/programa";
+import { MEDITACIONES } from "@/lib/vida";
+
+const HAY_MEDITACIONES = MEDITACIONES.some((m) => m.youtubeId);
 
 function Estado({ done, abierto, activa, n }) {
   if (done) return <span className="state state-done"><Icon name="check" size={18} /></span>;
@@ -25,7 +28,9 @@ export default function MiCamino() {
 
   useEffect(() => {
     if (!getUser()) { router.replace("/acceso"); return; }
+    migrarSesiones();
     setS({
+      semanaPlan: (sesionActual()?.semana) || 10,
       completas: lunasCompletas(), actual: lunaActual(),
       fullness: fullnessLuna(), nacio: nacio(),
       antes: promedioInicial(), despues: getTermometroFinal(),
@@ -37,7 +42,7 @@ export default function MiCamino() {
 
   const tools = [
     { href: "/como-funciona", icon: "brujula", label: "Cómo funciona" },
-    { href: "/meditar", icon: "auriculares", label: "Meditar" },
+    ...(HAY_MEDITACIONES ? [{ href: "/meditar", icon: "auriculares", label: "Meditar" }] : []),
     { href: "/respirar", icon: "viento", label: "Respirar" },
     { href: "/semillas", icon: "brote", label: "Mis semillas" },
   ];
@@ -48,7 +53,7 @@ export default function MiCamino() {
         <div className="eyebrow">Mi camino</div>
         <div className="luna-hero"><Luna fase={s.nacio ? 1 : Math.max(0.06, s.fullness)} size={186} /></div>
         <h1 className="h1" style={{ color: "var(--luna)" }}>Volver a vos, paso a paso</h1>
-        <p className="tiny">{s.nacio ? "Completaste tu camino" : `${s.completas} de 9 lunas · vas por la ${Math.min(s.actual, 9)}`}</p>
+        <p className="tiny">{s.nacio ? "Completaste tu camino" : `${s.completas} de 9 lunas · vas por la ${Math.min(s.semanaPlan, 9)}`}</p>
       </div>
 
       {s.diasSin != null && s.diasSin >= 3 && !s.nacio && (
@@ -94,8 +99,8 @@ export default function MiCamino() {
               {et.modulos.filter((n) => n <= 9).map((n) => {
                 const m = getModulo(n);
                 const done = moduloCompleto(n);
-                const abierto = moduloDesbloqueado(n);
-                const activa = n === s.actual;
+                const abierto = semanaDesbloqueada(n);
+                const activa = n === Math.min(s.semanaPlan, 9);
                 const hechos = pasosHechosModulo(n);
                 const tot = m.videos.length;
                 const inner = (

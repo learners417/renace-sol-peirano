@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Nav, Video } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { Luna } from "@/components/Luna";
-import { getUser, pasosDeModulo, getPasos, moduloDesbloqueado } from "@/lib/estado";
+import { getUser, getPasos, semanaDesbloqueada, indiceActual } from "@/lib/estado";
 import { getModulo, vozSolModulo, secuenciaVideos } from "@/lib/programa";
 
 export default function LunaDetalle() {
@@ -15,11 +15,13 @@ export default function LunaDetalle() {
   const [abierto, setAbierto] = useState(null);
   const [pasos, setPasos] = useState({});
   const [bloqueada, setBloqueada] = useState(false);
+  const [idxActual, setIdxActual] = useState(-1);
 
   useEffect(() => {
     if (!getUser()) { router.replace("/acceso"); return; }
-    setBloqueada(!moduloDesbloqueado(n));
+    setBloqueada(!semanaDesbloqueada(n));
     setPasos(getPasos());
+    setIdxActual(indiceActual());
   }, [router, n]);
 
   const m = getModulo(n);
@@ -76,11 +78,11 @@ export default function LunaDetalle() {
                     ? <Video url={v.videoUrl} titulo={v.titulo} />
                     : <div className="card card-luna"><p className="muted">{v.desc}</p></div>}
                   <p className="serif-quote" style={{ fontSize: "1.1rem" }}>{v.idea}</p>
-                  {!hecho && (
-                    <div className="card" style={{ background: "var(--surface-2)", border: 0 }}>
-                      <b className="tiny" style={{ color: "var(--luna)" }}>PRÁCTICA</b>
-                      <p style={{ marginTop: 4 }}>{v.actividad}</p>
-                    </div>
+                  {!hecho && idx === idxActual && (
+                    <button className="btn btn-primary" onClick={() => router.push("/ritual")}>Ir a mi sesión de hoy</button>
+                  )}
+                  {!hecho && idx !== idxActual && (
+                    <p className="tiny center">Esta clase se abre en tu sesión, cuando llegues a ella.</p>
                   )}
                 </div>
               )}

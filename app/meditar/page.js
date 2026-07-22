@@ -1,44 +1,57 @@
 "use client";
-import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Nav } from "@/components/ui";
-import { getUser } from "@/lib/estado";
-import { getModulo } from "@/lib/programa";
-import { MEDITACIONES } from "@/lib/vida";
+import { Nav, Video } from "@/components/ui";
+import { Icon } from "@/components/Icon";
+import { getUser, semanaDesbloqueada } from "@/lib/estado";
+import { MEDITACIONES, embedMeditacion } from "@/lib/vida";
 
 export default function Meditar() {
   const router = useRouter();
   const [play, setPlay] = useState(null);
-  useEffect(() => { if (!getUser()) router.replace("/acceso"); }, [router]);
+  const [luna, setLuna] = useState(1);
+
+  useEffect(() => {
+    if (!getUser()) { router.replace("/acceso"); return; }
+    setLuna(0);
+  }, [router]);
 
   return (
     <div className="app app-pad" style={{ paddingTop: 22 }}>
       <button className="link" onClick={() => router.back()}>‹ Volver</button>
       <div className="center stack" style={{ marginTop: 8 }}>
         <div className="ico" style={{ color: "var(--luna)" }}><Icon name="auriculares" size={30} /></div>
-        <h1 className="h1">Meditaciones</h1>
-        <p className="tiny">Pausas guiadas por Sol, intercaladas en el camino. Con audífonos se siente mejor.</p>
+        <h1 className="h1">Tus meditaciones</h1>
+        <p className="tiny">Guiadas por Sol. Se van abriendo a medida que avanzás por tus lunas — y las que ya son tuyas, quedan para siempre.</p>
       </div>
 
       <div className="stack" style={{ marginTop: 18 }}>
         {MEDITACIONES.map((m) => {
-          const mod = getModulo(m.modulo);
+          const abierta = semanaDesbloqueada(m.luna);
           return (
-            <div key={m.id} className="card" style={{ padding: 14 }}>
+            <div key={m.id} className="card" style={{ padding: 14, opacity: abierta ? 1 : 0.65 }}>
               <div className="between">
                 <div className="row">
-                  <span className="ico" style={{ color: "var(--luna)" }}><Icon name="auriculares" size={22} /></span>
+                  <span className={"state " + (abierta ? "state-now" : "state-lock")}>
+                    <Icon name={abierta ? "auriculares" : "candado"} size={16} />
+                  </span>
                   <div>
-                    <b style={{ fontSize: ".95rem" }}>{m.nombre}</b>
-                    <p className="tiny">Luna {m.modulo} · {mod?.nombre}</p>
+                    <b style={{ fontSize: ".95rem", color: abierta ? "inherit" : "var(--ink-3)" }}>{m.nombre}</b>
+                    <p className="tiny">{abierta ? "Tuya, cuando la necesites" : `Se abre cuando llegues a la Luna ${m.luna}`}</p>
                   </div>
                 </div>
-                {m.audioUrl
-                  ? <button className="btn btn-soft" style={{ width: "auto", padding: "8px 16px" }} onClick={() => setPlay(m.id)}><Icon name="play" size={16} /></button>
-                  : <span className="pill pill-luna">pronto</span>}
+                {abierta && (
+                  <button className="btn btn-soft" style={{ width: "auto", padding: "8px 14px" }} onClick={() => setPlay(play === m.id ? null : m.id)}>
+                    <Icon name="play" size={15} />
+                  </button>
+                )}
               </div>
-              {play === m.id && m.audioUrl && <audio controls src={m.audioUrl} style={{ width: "100%", marginTop: 10 }} />}
+              {play === m.id && abierta && (
+                <div style={{ marginTop: 12 }}>
+                  <Video url={embedMeditacion(m)} titulo={m.nombre} />
+                  <p className="tiny center" style={{ marginTop: 8 }}>Ponete cómoda. Este momento es tuyo.</p>
+                </div>
+              )}
             </div>
           );
         })}

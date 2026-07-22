@@ -1,4 +1,12 @@
-# El Camino R.E.N.A.C.E. — App (v9 · según la sesión con Sol)
+# El Camino R.E.N.A.C.E. — App (v18 · Las 9 Semanas)
+
+**"Tardaste 9 meses en nacer. Vas a tardar 9 semanas en renacer."** 1 semana = 1 luna = 1 mes de gestación de sí misma. 5 días de camino por semana (fin de semana descansa), 45 sesiones, ventana de acceso de 12 semanas (9 + gracia), extensión 50% off, y membresía RENACIDA post-graduación.
+
+## Códigos de acceso
+SEMANA1- (solo semana 1, upgrade al cerrar) · CAMINO- · ACOMP- · INTEGRAL- · EXTENSION- (reabre 12 semanas) · RENACIDA- (membresía).
+
+## Links de pago (env en Vercel)
+NEXT_PUBLIC_LINK_CAMINO · _ACOMP · _INTEGRAL · _EXTENSION · _RENACIDA (checkouts de GHL; sin link, la app deriva a WhatsApp).
 
 Programa de transformación para madres. Volver a nacer, volver a vos. Práctica diaria (~un paso por día, tipo Duolingo), flexible, que MIDE el cambio real — no teoría.
 

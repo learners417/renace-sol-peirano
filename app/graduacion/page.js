@@ -86,6 +86,11 @@ export default function Graduacion() {
             </div>
           </div>
         )}
+        <div className="card card-luna stack" style={{ marginTop: 8 }}>
+          <div className="eyebrow">Renacer es el comienzo</div>
+          <p className="muted">Lo que construiste en estas 9 semanas se sostiene practicándolo. <b>RENACIDA</b> es tu membresía para seguir: tu sesión diaria, todo el contenido, Serena, y un encuentro mensual en vivo con Sol.</p>
+          <Link href="/crecer" className="btn btn-primary">Conocer RENACIDA</Link>
+        </div>
         <Link href="/mi-camino" className="link center" style={{ display: "block" }}>Volver a mi camino</Link>
       </div>
     </div>

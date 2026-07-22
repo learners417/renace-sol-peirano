@@ -29,10 +29,19 @@ export async function POST(req) {
     return Response.json({ texto: respuestaLocal(mensaje, contexto), fuente: "local" });
   }
 
-  const messages = [
-    ...historial.slice(-8).map((m) => ({ role: m.role === "me" ? "user" : "assistant", content: m.texto })),
-    { role: "user", content: mensaje },
-  ];
+  // Saneamos el historial: la API exige empezar con "user", alternar roles y no duplicar el mensaje.
+  let hist = historial.slice(-9)
+    .map((m) => ({ role: m.role === "me" ? "user" : "assistant", content: (m.texto || "").trim() }))
+    .filter((m) => m.content);
+  if (hist.length && hist[hist.length - 1].role === "user" && hist[hist.length - 1].content === mensaje.trim()) hist.pop();
+  while (hist.length && hist[0].role !== "user") hist.shift();
+  const alternado = [];
+  for (const m of hist) {
+    if (alternado.length && alternado[alternado.length - 1].role === m.role) alternado[alternado.length - 1].content += "\n" + m.content;
+    else alternado.push({ ...m });
+  }
+  if (alternado.length && alternado[alternado.length - 1].role === "user") alternado.pop();
+  const messages = [...alternado, { role: "user", content: mensaje }];
 
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
