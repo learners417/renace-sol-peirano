@@ -11,6 +11,7 @@ import {
   pasosHechosModulo, diasDesdeUltimoPaso, sesionActual, migrarSesiones,
 } from "@/lib/estado";
 import { etapas, getModulo } from "@/lib/programa";
+import { primeraSesionDeSemana } from "@/lib/semanas";
 import { MEDITACIONES } from "@/lib/vida";
 
 const HAY_MEDITACIONES = MEDITACIONES.some((m) => m.youtubeId);
@@ -109,13 +110,13 @@ export default function MiCamino() {
                       <Estado done={done} abierto={abierto} activa={activa} n={n} />
                       <div>
                         <b style={{ color: abierto ? "inherit" : "var(--ink-3)" }}>Luna {n} · {m.nombre}</b>
-                        <p className="tiny">{done ? "Completa" : abierto ? `${hechos}/${tot} clases` : "Se abre al terminar la anterior"}</p>
+                        <p className="tiny">{done ? "Completa" : abierto ? `${hechos}/${tot} clases` : `Se abre en tu micro-sesión ${primeraSesionDeSemana(n)}`}</p>
                       </div>
                     </div>
                     {abierto && <span style={{ color: "var(--luna-soft)" }}><Icon name="chevron" size={18} /></span>}
                   </div>
                 );
-                const style = { textDecoration: "none", color: "inherit", padding: 14, borderColor: activa ? "var(--luna-soft)" : "var(--hairline)", background: activa ? "var(--luna-wash)" : "var(--surface)", opacity: abierto ? 1 : 0.7 };
+                const style = { textDecoration: "none", color: "inherit", padding: 14, overflow: "hidden", position: "relative", borderColor: activa ? "var(--luna-soft)" : "var(--hairline)", background: activa ? "var(--luna-wash)" : "var(--surface)", opacity: abierto ? 1 : 0.7 };
                 return abierto
                   ? <Link key={n} href={`/luna/${n}`} className="card" style={style}>{inner}</Link>
                   : <div key={n} className="card" style={style}>{inner}</div>;

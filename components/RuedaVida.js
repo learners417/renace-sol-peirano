@@ -4,7 +4,7 @@ import { AREAS } from "@/lib/vida";
 // Rueda de la Vida (v2): 9 gajos que se llenan desde el centro según el logro real.
 // Se ve como una rueda desde el día 1 (con todo en cero muestra el contorno tenue),
 // y cada gajo crece con lo que ella registra. Legible en móvil.
-export function RuedaVida({ scores = {}, size = 300, onArea }) {
+export function RuedaVida({ scores = {}, bases = {}, size = 300, onArea }) {
   const cx = size / 2, cy = size / 2, R = size / 2 - 52;
   const N = AREAS.length, step = (Math.PI * 2) / N, gap = 0.03;
 
@@ -35,6 +35,15 @@ export function RuedaVida({ scores = {}, size = 300, onArea }) {
             <path d={slice(i, R)} fill={a.color} opacity="0.1" />
             {/* logro real */}
             {sc > 0 && <path d={slice(i, Math.max(R * 0.08, R * sc))} fill={a.color} opacity="0.82" />}
+            {/* marca del punto de partida */}
+            {bases[a.n] != null && (() => {
+              const rb = R * Math.max(0.08, (bases[a.n] * 10) / 100);
+              const a1 = -Math.PI / 2 + i * ((Math.PI * 2) / N) + 0.06;
+              const a2 = -Math.PI / 2 + (i + 1) * ((Math.PI * 2) / N) - 0.06;
+              const x1 = cx + rb * Math.cos(a1), y1 = cy + rb * Math.sin(a1);
+              const x2 = cx + rb * Math.cos(a2), y2 = cy + rb * Math.sin(a2);
+              return <path d={`M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${rb} ${rb} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`} fill="none" stroke="#FBF7F2" strokeWidth="2" strokeDasharray="3 3" opacity="0.9" />;
+            })()}
             {/* etiqueta */}
             <text x={lx} y={ly} fontSize="9.5" fontWeight="700"
               fill="#574F60" textAnchor={cosv > 0.25 ? "start" : cosv < -0.25 ? "end" : "middle"}

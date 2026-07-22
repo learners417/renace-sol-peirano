@@ -11,7 +11,8 @@ export default function Onboarding() {
   const [paso, setPaso] = useState(0);
   const [pais, setPaisSel] = useState("");
   const [dolor, setDolor] = useState("");
-  const [termometro, setTermometro] = useState(0);
+  const [bases, setBases] = useState({});
+  const [areaIdx, setAreaIdx] = useState(0);
   const [carta, setCarta] = useState("");
   const nombre = (getUser()?.nombre) || "mamá";
   const dolorQ = diagnostico[0];
@@ -20,14 +21,14 @@ export default function Onboarding() {
   function finish() {
     setPais(pais || "OT");
     guardarDiagnostico({ dolor });
-    guardarOnboarding({ termometro, carta, pais: pais || "OT" });
+    guardarOnboarding({ bases, carta, pais: pais || "OT" });
     router.replace("/hoy");
   }
 
   return (
     <div className="app app-pad" style={{ paddingTop: 34 }}>
       <div className="step-dots" style={{ marginBottom: 22 }}>
-        {[0, 1, 2, 3].map((i) => <i key={i} className={i <= paso ? "on" : ""} />)}
+        {[0, 1, 2, 3, 4].map((i) => <i key={i} className={i <= paso ? "on" : ""} />)}
       </div>
 
       {paso === 0 && (
@@ -73,22 +74,41 @@ export default function Onboarding() {
         </div>
       )}
 
-      {paso === 3 && (
+      {paso === 3 && (() => {
+        const ar = AREAS[areaIdx];
+        const elegir = (v) => {
+          setBases({ ...bases, [ar.n]: v });
+          if (areaIdx < AREAS.length - 1) setAreaIdx(areaIdx + 1);
+          else next();
+        };
+        return (
+          <div className="stack">
+            <div className="eyebrow">Tu rueda de hoy · {areaIdx + 1} de {AREAS.length}</div>
+            <h2 className="h2">Tu punto de partida</h2>
+            <p className="tiny">Así medimos tu renacimiento: cómo está cada área de tu vida HOY, del 1 al 10. Sin juicio — es tu foto de partida.</p>
+            <div className="card card-luna center" style={{ padding: 18 }}>
+              <span style={{ width: 14, height: 14, borderRadius: "50%", background: ar.color, display: "inline-block", marginBottom: 6 }} />
+              <h2 className="h2" style={{ color: "var(--luna)" }}>{ar.label}</h2>
+              <p className="tiny" style={{ marginTop: 4 }}>¿Cómo está esta área hoy?</p>
+            </div>
+            <div className="grid-2" style={{ gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
+              {Array.from({ length: 10 }).map((_, i) => {
+                const v = i + 1;
+                return <button key={v} className={"chip" + (bases[ar.n] === v ? " sel" : "")} style={{ justifyContent: "center", padding: "14px 0" }} onClick={() => elegir(v)}><b className="num">{v}</b></button>;
+              })}
+            </div>
+            {areaIdx > 0 && <button className="link" onClick={() => setAreaIdx(areaIdx - 1)}>‹ Corregir la anterior</button>}
+          </div>
+        );
+      })()}
+
+      {paso === 4 && (
         <div className="stack">
-          <div className="eyebrow">Tu punto de partida</div>
-          <h2 className="h2">Hoy, ¿qué tan conectada te sentís con vos misma?</h2>
-          <p className="tiny">Del 1 al 10. Sin respuestas incorrectas: es solo tu foto de hoy.</p>
-          <div className="grid-2" style={{ gridTemplateColumns: "repeat(5,1fr)" }}>
-            {Array.from({ length: 10 }).map((_, i) => {
-              const v = i + 1;
-              return <button key={v} className={"chip" + (termometro === v ? " sel" : "")} style={{ justifyContent: "center", padding: "16px 0" }} onClick={() => setTermometro(v)}><b className="num">{v}</b></button>;
-            })}
-          </div>
-          <div style={{ marginTop: 8 }}>
-            <label className="tiny" style={{ fontWeight: 700 }}>Una carta corta para vos, para leer al final del camino:</label>
-            <textarea className="field" style={{ marginTop: 6 }} value={carta} onChange={(e) => setCarta(e.target.value)} placeholder="Querida yo, hoy empiezo este camino porque…" />
-          </div>
-          <button className="btn btn-primary btn-lg" onClick={finish} disabled={!termometro}>Empezar mi primera luna</button>
+          <div className="eyebrow">Una última cosa</div>
+          <h2 className="h2">Una carta para vos</h2>
+          <p className="tiny">Corta, sincera. La vas a leer al final del camino, cuando ya seas otra.</p>
+          <textarea className="field" value={carta} onChange={(e) => setCarta(e.target.value)} placeholder="Querida yo, hoy empiezo este camino porque…" />
+          <button className="btn btn-primary btn-lg" onClick={finish}>Empezar mi primera luna</button>
         </div>
       )}
     </div>

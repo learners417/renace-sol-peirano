@@ -12,7 +12,7 @@ import {
   enGracia, accesoVencido, esFinDeSemana, soloSemana1, cierreDeSemanaHecho,
 } from "@/lib/estado";
 import { getModulo } from "@/lib/programa";
-import { NOMBRE_DIA } from "@/lib/semanas";
+import { NOMBRE_DIA, TOTAL_SESIONES } from "@/lib/semanas";
 import { t } from "@/lib/voz";
 
 export default function Hoy() {
@@ -97,9 +97,10 @@ export default function Hoy() {
           {ses && (
             <div className="card card-luna">
               <div className="pill pill-luna" style={{ marginBottom: 10 }}>
-                {ses.nacimiento ? "El Nacimiento" : `Semana ${ses.semana} · Día ${ses.dia} · ${NOMBRE_DIA[ses.tipo]}`}
+                {ses.nacimiento ? "El Nacimiento" : `Micro-sesión ${listo.idx + 1} de ${TOTAL_SESIONES} · ${NOMBRE_DIA[ses.tipo]}`}
               </div>
               <h2 className="h2" style={{ color: "var(--luna)" }}>{modSemana?.nombre}</h2>
+              <p className="tiny" style={{ marginTop: 2 }}>Semana {ses.semana} · Día {ses.dia} de tu luna</p>
               <p className="muted" style={{ marginTop: 6 }}>
                 {ses.tipo === "integracion"
                   ? "Hoy no hay video: hoy se vive. Tu práctica de la semana, en tu vida real."

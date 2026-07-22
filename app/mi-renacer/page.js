@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { Nav } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { RuedaVida } from "@/components/RuedaVida";
-import { getUser, getHitos, agregarHito, areaScore, lunaActual, getDiario } from "@/lib/estado";
+import { getUser, getHitos, agregarHito, areaScore, lunaActual, getDiario, getBases, guardarBases, promedioInicial, nivelRenacimiento } from "@/lib/estado";
+import { AREAS as AREAS_ALL } from "@/lib/vida";
 import { AREAS, areaDe } from "@/lib/vida";
 import { achicarFoto } from "@/lib/foto";
 import { collageFinal, descargar } from "@/lib/collage";
@@ -28,12 +29,18 @@ export default function MiRenacer() {
   const [texto, setTexto] = useState("");
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [bases, setBases] = useState(null);
+  const [nivel, setNivel] = useState({ ini: null, hoy: null });
+  const [baseIdx, setBaseIdx] = useState(0);
+  const [baseTmp, setBaseTmp] = useState({});
   const fileRef = useRef();
 
   function refrescar() {
     setHitos(getHitos());
     setDiario(getDiario());
     const sc = {}; AREAS.forEach((a) => (sc[a.n] = areaScore(a.n))); setScores(sc);
+    setBases(getBases());
+    setNivel({ ini: promedioInicial(), hoy: nivelRenacimiento() });
   }
 
   useEffect(() => {
@@ -57,7 +64,53 @@ export default function MiRenacer() {
         <div className="eyebrow">Mi renacer</div>
         <h1 className="h1" style={{ color: "var(--luna)" }}>Tu registro de renacimiento</h1>
         <p className="tiny">Ver un video no cambia tu vida. Registrar lo que sí cambió, sí. Tu rueda crece con cada logro real.</p>
-        <RuedaVida scores={scores} size={300} onArea={(n) => setArea(n)} />
+        {nivel.ini != null && nivel.hoy != null && (
+          <div className="card" style={{ padding: 14, width: "100%" }}>
+            <div className="eyebrow center">Tu nivel de renacimiento</div>
+            <div className="between" style={{ marginTop: 6 }}>
+              <div className="center" style={{ flex: 1 }}>
+                <div className="tiny">Empezaste en</div>
+                <div className="num" style={{ fontSize: "1.9rem", color: "var(--ink-2)" }}>{nivel.ini}<span style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>/10</span></div>
+              </div>
+              <span style={{ color: "var(--luna-soft)" }}>→</span>
+              <div className="center" style={{ flex: 1 }}>
+                <div className="tiny">Hoy estás en</div>
+                <div className="num" style={{ fontSize: "1.9rem", color: "var(--salvia)" }}>{nivel.hoy}<span style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>/10</span></div>
+              </div>
+            </div>
+            <p className="tiny center" style={{ marginTop: 6 }}>La línea punteada en tu rueda es tu punto de partida.</p>
+          </div>
+        )}
+        <RuedaVida scores={scores} bases={bases || {}} size={300} onArea={(n) => setArea(n)} />
+        {!bases && (
+          <div className="card stack" style={{ width: "100%" }}>
+            <div className="eyebrow">Marcá tu punto de partida</div>
+            <p className="tiny">Para medir tu renacimiento necesitamos tu foto inicial: cada área, del 1 al 10, como estaba al empezar.</p>
+            {(() => {
+              const ar = AREAS_ALL[baseIdx];
+              const elegir = (v) => {
+                const b = { ...baseTmp, [ar.n]: v };
+                setBaseTmp(b);
+                if (baseIdx < AREAS_ALL.length - 1) setBaseIdx(baseIdx + 1);
+                else { guardarBases(b); refrescar(); }
+              };
+              return (
+                <>
+                  <div className="between">
+                    <b className="ico-row" style={{ gap: 8 }}><span style={{ width: 10, height: 10, borderRadius: "50%", background: ar.color, display: "inline-block" }} />{ar.label}</b>
+                    <span className="tiny">{baseIdx + 1}/9</span>
+                  </div>
+                  <div className="grid-2" style={{ gridTemplateColumns: "repeat(5,1fr)", gap: 6 }}>
+                    {Array.from({ length: 10 }).map((_, i) => {
+                      const v = i + 1;
+                      return <button key={v} className={"chip" + (baseTmp[ar.n] === v ? " sel" : "")} style={{ justifyContent: "center", padding: "10px 0" }} onClick={() => elegir(v)}><b className="num">{v}</b></button>;
+                    })}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {/* Registrar un logro — simple y numérico */}

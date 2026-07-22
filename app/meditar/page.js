@@ -5,6 +5,7 @@ import { Nav, Video } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { getUser, semanaDesbloqueada } from "@/lib/estado";
 import { MEDITACIONES, embedMeditacion } from "@/lib/vida";
+import { primeraSesionDeSemana } from "@/lib/semanas";
 
 export default function Meditar() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function Meditar() {
                   </span>
                   <div>
                     <b style={{ fontSize: ".95rem", color: abierta ? "inherit" : "var(--ink-3)" }}>{m.nombre}</b>
-                    <p className="tiny">{abierta ? "Tuya, cuando la necesites" : `Se abre cuando llegues a la Luna ${m.luna}`}</p>
+                    <p className="tiny">{abierta ? "Tuya, cuando la necesites" : `Se abre en tu micro-sesión ${primeraSesionDeSemana(m.luna)}`}</p>
                   </div>
                 </div>
                 {abierta && (

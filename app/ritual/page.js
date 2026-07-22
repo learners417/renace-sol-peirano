@@ -12,6 +12,7 @@ import {
 import { secuenciaVideos, getModulo, semillaPorIndice } from "@/lib/programa";
 import { meditacionesDeLuna, embedMeditacion, areaDe } from "@/lib/vida";
 import { t, conjuga } from "@/lib/voz";
+import Link from "next/link";
 import { achicarFoto } from "@/lib/foto";
 import { tarjetaLuna, descargar } from "@/lib/collage";
 
@@ -117,7 +118,7 @@ export default function Ritual() {
             const hayTrabajo = animo || comprension.trim() || foto || semillaTexto.trim() || notaDiario.trim() || cierreValor || logroPeso;
             if (!hayTrabajo || confirm("Si salís ahora, lo de hoy no se guarda. ¿Salir igual?")) router.replace("/hoy");
           }}>Salir</button>
-          <span className="tiny">{ses.nacimiento ? "El Nacimiento" : `Semana ${ses.semana} · Día ${ses.dia}`}</span>
+          <span className="tiny">{ses.nacimiento ? "El Nacimiento" : `Micro-sesión ${idx + 1} · Semana ${ses.semana}`}</span>
         </div>
         <div className="step-dots">{PASOS.map((_, i) => <i key={i} className={i <= paso ? "on" : ""} />)}</div>
       </div>
@@ -125,7 +126,7 @@ export default function Ritual() {
       <div className="ritual-body">
         {cur === "prepara" && (
           <div className="stack center">
-            <div className="eyebrow">Tu sesión de hoy</div>
+            <div className="eyebrow">{`Bienvenida a tu micro-sesión ${idx + 1}`}</div>
             <div className="luna-hero"><Luna fase={0.3} size={116} /></div>
             <h2 className="h2">{conjuga(pais, "Preparate para vos", "Prepárate para ti")}</h2>
             <p className="lead">{conjuga(pais, "Buscá un momento tranquilo. Hacete un té o un café, agarrá tu cuaderno y una lapicera para tomar notas. Este rato es tuyo, sin culpa.", "Busca un momento tranquilo. Hazte un té o un café, toma tu cuaderno y una pluma para tomar notas. Este rato es tuyo, sin culpa.")}</p>
@@ -148,6 +149,15 @@ export default function Ritual() {
                 </button>
               ))}
             </div>
+            {animo > 0 && animo <= 2 && (
+              <div className="card" style={{ background: "var(--luna-wash)", borderColor: "#E7DEF0" }}>
+                <p className="tiny" style={{ color: "var(--luna)" }}>{conjuga(pais, "Llegaste pesada hoy, y está bien. Si querés, antes de tu sesión podés contarle a Serena o respirar un minuto — o seguir directo, como te haga bien.", "Llegas pesada hoy, y está bien. Si quieres, antes de tu sesión puedes contarle a Serena o respirar un minuto — o seguir directo, como te haga bien.")}</p>
+                <div className="grid-2" style={{ marginTop: 8 }}>
+                  <Link href="/serena" className="btn btn-ghost" style={{ textAlign: "center", textDecoration: "none" }}>Hablar con Serena</Link>
+                  <Link href="/respirar" className="btn btn-ghost" style={{ textAlign: "center", textDecoration: "none" }}>Respirar 1 min</Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
