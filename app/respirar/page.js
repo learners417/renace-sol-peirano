@@ -23,13 +23,13 @@ const RESPIRACIONES = [
   {
     id: "ansiedad", nombre: "Ansiedad o agitación", icono: "brujula", color: "#9D86BE",
     cuando: "Cuando la cabeza va a mil y el pecho está apretado.",
-    fases: [[habla(pais, "inhalá"), 5, 1.12], [habla(pais, "exhalá"), 5, 0.86]],
-    frases: [habla(pais, "Estoy acá, ahora. Lo demás puede esperar un minuto."), "Mi respiración es mi ancla."],
+    fases: [["inhalá", 5, 1.12], ["exhalá", 5, 0.86]],
+    frases: ["Estoy acá, ahora. Lo demás puede esperar un minuto.", "Mi respiración es mi ancla."],
   },
   {
     id: "angustia", nombre: "Angustia", icono: "corazon", color: "#D6A6C4",
     cuando: "Cuando hay un nudo y ganas de llorar. Dos inhalaciones cortas y soltás largo.",
-    fases: [[habla(pais, "inhalá"), 2, 1.06], [habla(pais, "inhalá un poco más"), 2, 1.16], [habla(pais, "exhalá laaargo"), 7, 0.8]],
+    fases: [["inhalá", 2, 1.06], ["inhalá un poco más", 2, 1.16], ["exhalá laaargo", 7, 0.8]],
     frases: ["Lo que siento es válido. Lo dejo pasar como una ola.", "Llorar también descarga. Estoy bien."],
   },
   {
