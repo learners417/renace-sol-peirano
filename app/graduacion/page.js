@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Luna } from "@/components/Luna";
 import { RuedaVida } from "@/components/RuedaVida";
-import { getUser, getOnboarding, promedioInicial, getTermometroFinal, setTermometroFinal, getDiario, areaScore, nacio } from "@/lib/estado";
+import { getUser, getOnboarding, promedioInicial, getTermometroFinal, setTermometroFinal, getDiario, areaScore, nacio, getBases, nivelRenacimiento, semanasCompletas, getPais } from "@/lib/estado";
 import { AREAS } from "@/lib/vida";
 import { vozSolModulo } from "@/lib/programa";
 import { collageFinal, descargar } from "@/lib/collage";
 import { compartirTexto } from "@/lib/compartir";
+import { habla } from "@/lib/voz";
 
 export default function Graduacion() {
+  const pais = getPais();
   const router = useRouter();
   const [s, setS] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -36,15 +38,15 @@ export default function Graduacion() {
         <div className="luna-hero"><Luna fase={1} size={200} /></div>
         <div className="pill pill-oro">Luna llena</div>
         <h1 className="display" style={{ color: "var(--luna)" }}>Renaciste, {s.nombre}</h1>
-        <p className="serif-quote">A una nueva versión de vos. Recorriste el camino entero, y volviste.</p>
+        <p className="serif-quote">{habla(pais, "A una nueva versión de vos. Recorriste el camino entero, y volviste.")}</p>
         <RuedaVida scores={s.scores} size={280} />
-        <p className="tiny">Tu Rueda de la Vida, hoy. Mirá todo lo que creció.</p>
+        <p className="tiny">{habla(pais, "Tu Rueda de la Vida, hoy. Mirá todo lo que creció.")}</p>
       </div>
 
       {s.despues == null ? (
         <div className="card stack" style={{ marginTop: 22 }}>
           <div className="eyebrow">Tu foto de hoy</div>
-          <h2 className="h2">Hoy, ¿qué tan conectada te sentís con vos misma?</h2>
+          <h2 className="h2">{habla(pais, "Hoy, ¿qué tan conectada te sentís con vos misma?")}</h2>
           <p className="tiny">Del 1 al 10. La misma pregunta del primer día.</p>
           <div className="grid-2" style={{ gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
             {Array.from({ length: 10 }).map((_, i) => {
@@ -76,7 +78,7 @@ export default function Graduacion() {
       </div>
 
       <div className="stack" style={{ marginTop: 20 }}>
-        <button className="btn btn-oro btn-lg" onClick={() => setPreview(collageFinal({ frases: s.frases, lunas: 9 }))}>Crear el collage de mi renacimiento</button>
+        <button className="btn btn-oro btn-lg" onClick={() => setPreview(collageFinal({ scores: s.scores, bases: getBases() || {}, nivelIni: s.antes, nivelHoy: nivelRenacimiento(), frases: s.frases.slice(0, 2), lunas: semanasCompletas() }))}>Crear el collage de mi renacimiento</button>
         {preview && (
           <div className="card stack">
             <img src={preview} alt="Collage de tu renacimiento" style={{ width: "100%", borderRadius: "var(--r-1)" }} />

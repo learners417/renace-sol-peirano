@@ -1,10 +1,11 @@
 "use client";
+import { habla } from "@/lib/voz";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Nav } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { RuedaVida } from "@/components/RuedaVida";
-import { getUser, getHitos, agregarHito, areaScore, lunaActual, getDiario, getBases, guardarBases, promedioInicial, nivelRenacimiento } from "@/lib/estado";
+import { getUser, getHitos, agregarHito, areaScore, lunaActual, getDiario, getBases, guardarBases, promedioInicial, nivelRenacimiento, semanasCompletas, getPais } from "@/lib/estado";
 import { AREAS as AREAS_ALL } from "@/lib/vida";
 import { AREAS, areaDe } from "@/lib/vida";
 import { achicarFoto } from "@/lib/foto";
@@ -20,6 +21,7 @@ function Dot({ color, size = 10 }) {
 }
 
 export default function MiRenacer() {
+  const pais = getPais();
   const router = useRouter();
   const [hitos, setHitos] = useState([]);
   const [diario, setDiario] = useState([]);
@@ -84,7 +86,7 @@ export default function MiRenacer() {
         <RuedaVida scores={scores} bases={bases || {}} size={300} onArea={(n) => setArea(n)} />
         {!bases && (
           <div className="card stack" style={{ width: "100%" }}>
-            <div className="eyebrow">Marcá tu punto de partida</div>
+            <div className="eyebrow">{habla(pais, "Marcá tu punto de partida")}</div>
             <p className="tiny">Para medir tu renacimiento necesitamos tu foto inicial: cada área, del 1 al 10, como estaba al empezar.</p>
             {(() => {
               const ar = AREAS_ALL[baseIdx];
@@ -116,7 +118,7 @@ export default function MiRenacer() {
       {/* Registrar un logro — simple y numérico */}
       <div className="card stack" style={{ marginTop: 8 }}>
         <div className="eyebrow">Registrar un logro</div>
-        <p className="tiny">¿En qué área notaste un cambio? Tocá, marcá cuánto, y listo. Escribir es opcional.</p>
+        <p className="tiny">{habla(pais, "¿En qué área notaste un cambio? Tocá, marcá cuánto, y listo. Escribir es opcional.")}</p>
         <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>
           {AREAS.map((ar) => (
             <button key={ar.n} className="chip" style={{ width: "auto", padding: "8px 12px", gap: 8, border: area === ar.n ? "1px solid var(--luna)" : "1px solid var(--hairline)", background: area === ar.n ? "var(--luna-wash)" : "var(--surface)" }} onClick={() => setArea(ar.n)}>
@@ -144,7 +146,7 @@ export default function MiRenacer() {
         <button className="btn btn-primary" onClick={guardar} disabled={!area || !peso}>Guardar mi logro</button>
       </div>
 
-      <button className="btn btn-soft ico-row" style={{ marginTop: 14, justifyContent: "center" }} disabled={!diario.length} onClick={() => setPreview(collageFinal({ frases: diario.filter((e) => e.texto).slice(0, 6).map((e) => e.texto), lunas: 9 }))}>
+      <button className="btn btn-soft ico-row" style={{ marginTop: 14, justifyContent: "center" }} disabled={!diario.length} onClick={() => setPreview(collageFinal({ scores, bases: bases || {}, nivelIni: nivel.ini, nivelHoy: nivel.hoy, frases: diario.filter((e) => e.texto).slice(0, 2).map((e) => e.texto), lunas: semanasCompletas() }))}>
         <Icon name="luna" size={18} /> Armar mi collage
       </button>
       {preview && (
@@ -160,7 +162,7 @@ export default function MiRenacer() {
 
       <div className="stack" style={{ marginTop: 22 }}>
         <div className="eyebrow">Tus logros</div>
-        {hitos.length === 0 && <div className="card center muted">Todavía no registraste ninguno. Cuando algo cambie en tu vida —por chiquito que sea— marcalo acá.</div>}
+        {hitos.length === 0 && <div className="card center muted">{habla(pais, "Todavía no registraste ninguno. Cuando algo cambie en tu vida —por chiquito que sea— marcalo acá.")}</div>}
         {hitos.map((h, i) => {
           const ar = areaDe(h.area);
           return (

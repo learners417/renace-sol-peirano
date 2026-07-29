@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Guard } from "@/components/Guard";
 
 export const metadata = {
   title: "El Camino R.E.N.A.C.E.",
@@ -33,7 +34,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es">
+    <html lang="es" translate="no">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -42,7 +43,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body><Guard />{children}</body>
     </html>
   );
 }

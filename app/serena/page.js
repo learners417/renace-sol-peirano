@@ -5,7 +5,7 @@ import { Nav } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { getUser, getPais, lunaActual } from "@/lib/estado";
 import { getModulo, etapaDeModulo } from "@/lib/programa";
-import { t } from "@/lib/voz";
+import { t, habla } from "@/lib/voz";
 
 const MODOS = [
   { id: "companera", label: "Compañera", ic: "corazon", intro: "Estoy acá para lo que traigas hoy. Contame, sin filtro." },
@@ -31,7 +31,7 @@ export default function Serena() {
   }, [router]);
 
   useEffect(() => {
-    setMsgs([{ role: "app", texto: MODOS.find((m) => m.id === modo).intro }]);
+    setMsgs([{ role: "app", texto: habla(getPais(), MODOS.find((m) => m.id === modo).intro) }]);
   }, [modo]);
 
   useEffect(() => { scroller.current?.scrollTo(0, scroller.current.scrollHeight); }, [msgs, cargando]);
@@ -57,7 +57,7 @@ export default function Serena() {
     <div className="app app-pad" style={{ paddingTop: 22, display: "flex", flexDirection: "column", minHeight: "100dvh" }}>
       <div className="center" style={{ marginBottom: 10 }}>
         <div className="eyebrow">Serena</div>
-        <p className="tiny">Tu compañera con IA, que te responde con la voz y el método de Sol. Elegí cómo querés hablarle. No reemplaza a un profesional.</p>
+        <p className="tiny">{habla(pais, "Tu compañera con IA, que te responde con la voz y el método de Sol. Elegí cómo querés hablarle. No reemplaza a un profesional.")}</p>
       </div>
 
       <div className="row" style={{ gap: 8, marginBottom: 10 }}>

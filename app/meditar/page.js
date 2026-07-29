@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Nav, Video } from "@/components/ui";
 import { Icon } from "@/components/Icon";
-import { getUser, semanaDesbloqueada } from "@/lib/estado";
+import { getUser, semanaDesbloqueada, getPais } from "@/lib/estado";
 import { MEDITACIONES, embedMeditacion } from "@/lib/vida";
 import { primeraSesionDeSemana } from "@/lib/semanas";
+import { habla } from "@/lib/voz";
 
 export default function Meditar() {
+  const pais = getPais();
   const router = useRouter();
   const [play, setPlay] = useState(null);
   const [luna, setLuna] = useState(1);
@@ -23,7 +25,7 @@ export default function Meditar() {
       <div className="center stack" style={{ marginTop: 8 }}>
         <div className="ico" style={{ color: "var(--luna)" }}><Icon name="auriculares" size={30} /></div>
         <h1 className="h1">Tus meditaciones</h1>
-        <p className="tiny">Guiadas por Sol. Se van abriendo a medida que avanzás por tus lunas — y las que ya son tuyas, quedan para siempre.</p>
+        <p className="tiny">{habla(pais, "Guiadas por Sol. Se van abriendo a medida que avanzás por tus lunas — y las que ya son tuyas, quedan para siempre.")}</p>
       </div>
 
       <div className="stack" style={{ marginTop: 18 }}>
@@ -50,7 +52,7 @@ export default function Meditar() {
               {play === m.id && abierta && (
                 <div style={{ marginTop: 12 }}>
                   <Video url={embedMeditacion(m)} titulo={m.nombre} />
-                  <p className="tiny center" style={{ marginTop: 8 }}>Ponete cómoda. Este momento es tuyo.</p>
+                  <p className="tiny center" style={{ marginTop: 8 }}>{habla(pais, "Ponete cómoda. Este momento es tuyo.")}</p>
                 </div>
               )}
             </div>

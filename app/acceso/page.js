@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, getOnboarding } from "@/lib/estado";
+import { login, getOnboarding, getPais } from "@/lib/estado";
 import { Luna } from "@/components/Luna";
+import { habla } from "@/lib/voz";
 
 export default function Acceso() {
+  const pais = getPais();
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [codigo, setCodigo] = useState("");
@@ -12,8 +14,8 @@ export default function Acceso() {
   const [cargando, setCargando] = useState(false);
 
   async function entrar() {
-    if (!nombre.trim()) { setErr("Escribí tu nombre"); return; }
-    if (!codigo.trim()) { setErr("Escribí tu código de acceso"); return; }
+    if (!nombre.trim()) { setErr("Escribe tu nombre"); return; }
+    if (!codigo.trim()) { setErr("Escribe tu código de acceso"); return; }
     setCargando(true); setErr("");
     try {
       const r = await fetch("/api/acceso", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ codigo }) });
@@ -21,7 +23,7 @@ export default function Acceso() {
       if (!d.ok) { setErr(d.error || "Código inválido"); setCargando(false); return; }
       login(nombre.trim(), "", d.plan);
       router.replace(getOnboarding() ? "/hoy" : "/onboarding");
-    } catch { setErr("No pudimos validar ahora. Probá de nuevo."); setCargando(false); }
+    } catch { setErr(habla(pais, "No pudimos validar ahora. Probá de nuevo.")); setCargando(false); }
   }
 
   return (
@@ -30,12 +32,12 @@ export default function Acceso() {
         <div className="luna-hero"><Luna fase={1} size={130} /></div>
         <div className="eyebrow">El Camino</div>
         <h1 className="display" style={{ color: "var(--luna)" }}>R.E.N.A.C.E.</h1>
-        <p className="lead">Nueve lunas para volver a vos.</p>
+        <p className="lead">{habla(pais, "Nueve lunas para volver a vos.")}</p>
       </div>
 
       <div className="card stack" style={{ marginTop: 28 }}>
         <div>
-          <label className="tiny" style={{ fontWeight: 700 }}>¿Cómo te llamás?</label>
+          <label className="tiny" style={{ fontWeight: 700 }}>{habla(pais, "¿Cómo te llamás?")}</label>
           <input className="field" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" style={{ marginTop: 6 }} />
         </div>
         <div>

@@ -8,10 +8,12 @@ import {
   getUser, getPais, marcarPaso, registrarCheckin, agregarDiario, guardarSemilla,
   caminoCompleto, sesionActual, sesionActualIdx, marcarSesion, sesionPermitida,
   guardarCierreSemana, soloSemana1, agregarHito, migrarSesiones,
+  nivelArea, baseDeArea, semanasCompletas,
 } from "@/lib/estado";
 import { secuenciaVideos, getModulo, semillaPorIndice } from "@/lib/programa";
 import { meditacionesDeLuna, embedMeditacion, areaDe } from "@/lib/vida";
-import { t, conjuga } from "@/lib/voz";
+import { quizDe } from "@/lib/quiz";
+import { t, conjuga, habla } from "@/lib/voz";
 import Link from "next/link";
 import { achicarFoto } from "@/lib/foto";
 import { tarjetaLuna, descargar } from "@/lib/collage";
@@ -38,7 +40,17 @@ export default function Ritual() {
   const [cierreValor, setCierreValor] = useState(0);
   const [logroPeso, setLogroPeso] = useState(0);
   const [tarjeta, setTarjeta] = useState(null);
+  const [quizSel, setQuizSel] = useState(null);
+  const [notaAbierta, setNotaAbierta] = useState(false);
+  const [inicioSesion, setInicioSesion] = useState(null);
+  const [seg, setSeg] = useState(0);
   const fileRef = useRef();
+
+  useEffect(() => {
+    if (!inicioSesion) return;
+    const t = setInterval(() => setSeg(Math.round((Date.now() - inicioSesion) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [inicioSesion]);
 
   function cargar() {
     const idx = sesionActualIdx();
@@ -50,7 +62,7 @@ export default function Ritual() {
     return {
       idx, ses, video, luna, pais: getPais(),
       mod: getModulo(luna),
-      semilla: ses.videoIdx != null ? semillaPorIndice(ses.videoIdx) : semillaPorIndice(0),
+      semilla: semillaPorIndice(ses.videoIdx != null ? ses.videoIdx : 10 + idx),
       meds: meditacionesDeLuna(luna),
       practicaSemana: (secuenciaVideos.find((v) => v.modulo === luna) || {}).actividad || "",
     };
@@ -60,7 +72,7 @@ export default function Ritual() {
     if (!getUser()) { router.replace("/acceso"); return; }
     migrarSesiones();
     const d = cargar();
-    if (d) setDatos(d);
+    if (d) { setDatos(d); setInicioSesion(Date.now()); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
@@ -69,9 +81,13 @@ export default function Ritual() {
 
   const PASOS = ses.tipo === "clase"
     ? ["prepara", "check", "video", "respira", "ejercicio", "pausa", "semilla", "diario", "fin"]
+    : ses.tipo === "practica"
+    ? ["check", "meditacion", "semilla", "diario", "fin"]
+    : ses.tipo === "registro"
+    ? (ses.conMed ? ["check", "registrar", "meditacion", "semilla", "fin"] : ["check", "registrar", "semilla", "diario", "fin"])
     : ses.tipo === "integracion"
     ? ["prepara", "check", "practica", "pausa", "semilla", "diario", "fin"]
-    : video // cierre con clase pendiente (Luna 3) o el Nacimiento
+    : video
     ? ["check", "video", "encuesta", "logro", "fin"]
     : ["check", "encuesta", "logro", "fin"];
   const total = PASOS.length;
@@ -90,6 +106,9 @@ export default function Ritual() {
       if (cierreValor) guardarCierreSemana(ses.semana, cierreValor);
       if (logroPeso) agregarHito({ texto: notaDiario || `Cerré mi mes ${ses.semana}`, area: luna, peso: logroPeso, foto });
     }
+    if (ses.tipo === "registro" && logroPeso) {
+      agregarHito({ texto: notaDiario || `Mi primer cambio de la semana ${ses.semana}`, area: luna, peso: logroPeso, foto });
+    }
   }
 
   function terminar() {
@@ -104,6 +123,7 @@ export default function Ritual() {
     if (!d) return;
     setDatos(d);
     setComprension(""); setFoto(null); setSemillaTexto(""); setNotaDiario(""); setCierreValor(0); setLogroPeso(0); setTarjeta(null);
+    setQuizSel(null); setNotaAbierta(false); setInicioSesion(Date.now()); setSeg(0);
     setPaso(d.ses.tipo === "clase" ? 2 : d.ses.tipo === "integracion" ? 2 : 0);
     window.scrollTo(0, 0);
   }
@@ -118,7 +138,7 @@ export default function Ritual() {
             const hayTrabajo = animo || comprension.trim() || foto || semillaTexto.trim() || notaDiario.trim() || cierreValor || logroPeso;
             if (!hayTrabajo || confirm("Si salís ahora, lo de hoy no se guarda. ¿Salir igual?")) router.replace("/hoy");
           }}>Salir</button>
-          <span className="tiny">{ses.nacimiento ? "El Nacimiento" : `Micro-sesión ${idx + 1} · Semana ${ses.semana}`}</span>
+          <span className="tiny num">{ses.nacimiento ? "El Nacimiento" : `Micro-sesión ${idx + 1}`} · {Math.floor(seg / 60)}:{String(seg % 60).padStart(2, "0")}</span>
         </div>
         <div className="step-dots">{PASOS.map((_, i) => <i key={i} className={i <= paso ? "on" : ""} />)}</div>
       </div>
@@ -138,9 +158,9 @@ export default function Ritual() {
 
         {cur === "check" && (
           <div className="stack">
-            <div className="eyebrow">Cómo llegás</div>
+            <div className="eyebrow">{habla(pais, "Cómo llegás")}</div>
             <h2 className="h2">{t("comoLlegas", pais)}</h2>
-            <p className="tiny">Solo mirá cómo estás. No hay respuestas incorrectas.</p>
+            <p className="tiny">{habla(pais, "Solo mirá cómo estás. No hay respuestas incorrectas.")}</p>
             <div className="grid-2" style={{ gridTemplateColumns: "repeat(5,1fr)", gap: 8 }}>
               {CHECK.map((c) => (
                 <button key={c.v} className={"chip" + (animo === c.v ? " sel" : "")} style={{ flexDirection: "column", gap: 4, padding: "14px 4px", textAlign: "center" }} onClick={() => setAnimo(c.v)}>
@@ -170,10 +190,35 @@ export default function Ritual() {
                 <p className="tiny">{conjuga(pais, "La parte teórica. Tené tu cuaderno a mano y anotá lo que te resuene.", "La parte teórica. Ten tu cuaderno a mano y anota lo que te resuene.")}</p>
                 <Video url={video.videoUrl} titulo={video.titulo} />
                 <p className="muted">{video.desc}</p>
-                <div>
-                  <label className="tiny" style={{ fontWeight: 700 }}>¿Qué te quedó resonando del video? (opcional)</label>
-                  <textarea className="field" style={{ marginTop: 6, minHeight: 64 }} value={comprension} onChange={(e) => setComprension(e.target.value)} placeholder="Una idea, una frase, algo que te movió…" />
-                </div>
+                {(() => {
+                  const qz = quizDe(video.id);
+                  if (!qz) return null;
+                  return (
+                    <div className="card stack" style={{ background: "var(--luna-wash)", borderColor: "#E7DEF0" }}>
+                      <b className="tiny" style={{ color: "var(--luna)" }}>PARA QUEDARTE CON LA IDEA</b>
+                      <p style={{ fontWeight: 700 }}>{qz.q}</p>
+                      <div className="stack" style={{ gap: 8 }}>
+                        {qz.ops.map((op, i) => {
+                          const elegida = quizSel === i;
+                          const esOk = i === qz.ok;
+                          return (
+                            <button key={i} className="chip" style={{ width: "100%", textAlign: "left", justifyContent: "flex-start", border: elegida ? (esOk ? "1.5px solid var(--salvia)" : "1.5px solid var(--luna-soft)") : "1px solid var(--hairline)", background: elegida ? (esOk ? "var(--salvia-wash)" : "var(--surface)") : "var(--surface)" }} onClick={() => setQuizSel(i)}>
+                              {op}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {quizSel != null && (
+                        <p className="tiny" style={{ color: quizSel === qz.ok ? "#3F6349" : "var(--luna)" }}>
+                          {quizSel === qz.ok ? qz.tip : `Casi — la clave es: ${qz.ops[qz.ok].toLowerCase()}. ${qz.tip}`}
+                        </p>
+                      )}
+                      {!notaAbierta
+                        ? <button className="link" style={{ textAlign: "left" }} onClick={() => setNotaAbierta(true)}>{habla(pais, "¿Querés anotar algo del video? (opcional)")}</button>
+                        : <textarea className="field" style={{ minHeight: 56 }} value={comprension} onChange={(e) => setComprension(e.target.value)} placeholder="Una idea, una frase, algo que te movió…" />}
+                    </div>
+                  );
+                })()}
               </>
             ) : (
               <div className="card card-luna">
@@ -198,7 +243,7 @@ export default function Ritual() {
             <div className="card card-luna"><p className="serif-lead">{video.idea}</p></div>
             <div className="card">
               <b>El ejercicio de hoy:</b>
-              <p style={{ marginTop: 6 }}>{video.actividad}</p>
+              <p style={{ marginTop: 6 }}>{habla(pais, video.actividad)}</p>
             </div>
             <EvidenciaCard pais={pais} foto={foto} setFoto={setFoto} fileRef={fileRef} />
           </div>
@@ -207,24 +252,24 @@ export default function Ritual() {
         {cur === "practica" && (
           <div className="stack">
             <div className="eyebrow">Tu práctica viva · {areaSemana.label}</div>
-            <h2 className="h2">{ses.repaso ? "Mirá cuánto caminaste" : "Hoy no se mira: hoy se vive"}</h2>
-            <div className="card card-luna"><p className="serif-lead">{ses.reflexion}</p></div>
+            <h2 className="h2">{ses.repaso ? habla(pais, "Mirá cuánto caminaste") : "Hoy no se mira: hoy se vive"}</h2>
+            <div className="card card-luna"><p className="serif-lead">{habla(pais, ses.reflexion)}</p></div>
             {!ses.repaso && practicaSemana && (
               <div className="card" style={{ background: "var(--surface-2)", border: 0 }}>
                 <b className="tiny" style={{ color: "var(--luna)" }}>TU PRÁCTICA DE LA SEMANA, DE FONDO</b>
-                <p style={{ marginTop: 4 }}>{practicaSemana}</p>
+                <p style={{ marginTop: 4 }}>{habla(pais, practicaSemana)}</p>
               </div>
             )}
             <EvidenciaCard pais={pais} foto={foto} setFoto={setFoto} fileRef={fileRef} />
           </div>
         )}
 
-        {cur === "pausa" && (
+        {cur === "meditacion" && (
           meds.length > 0 ? (
             <div className="stack">
-              <div className="eyebrow">Una pausa para vos</div>
+              <div className="eyebrow">{habla(pais, "Una pausa para vos")}</div>
               <h2 className="h2">Tu meditación de esta luna</h2>
-              <p className="tiny">{conjuga(pais, "Guiada por Sol. Ponete cómoda, cerrá los ojos cuando ella te lo pida, y dejá que lo que trabajaste se asiente.", "Guiada por Sol. Ponte cómoda, cierra los ojos cuando ella te lo pida, y deja que lo que trabajaste se asiente.")}</p>
+              <p className="tiny">{conjuga(pais, "Grabada por Sol, con su voz. Ponete cómoda, cerrá los ojos cuando ella te lo pida, y dejá que lo que trabajaste se asiente.", "Grabada por Sol, con su voz. Ponte cómoda, cierra los ojos cuando ella te lo pida, y deja que lo que trabajaste se asiente.")}</p>
               {meds.map((m) => (
                 <div key={m.id} className="stack">
                   {meds.length > 1 && <b className="tiny" style={{ color: "var(--luna)" }}>{m.nombre.split("·")[1]?.trim() || m.nombre}</b>}
@@ -232,14 +277,38 @@ export default function Ritual() {
                 </div>
               ))}
               <p className="tiny center">{conjuga(pais, "Si hoy no tenés el momento, seguí tranquila: te queda guardada en Meditar.", "Si hoy no tienes el momento, sigue tranquila: te queda guardada en Meditar.")}</p>
+              <Link href="/respirar" className="card" style={{ display: "block", textDecoration: "none", color: "inherit", background: "var(--salvia-wash)", borderColor: "#D8E4DA" }}>
+                <b style={{ color: "#3F6349" }}>Tu respiración de la semana</b>
+                <p className="tiny">{conjuga(pais, "Practicala 1 minuto ahora — es la que vas a usar el resto de la semana.", "Practícala 1 minuto ahora — es la que usarás el resto de la semana.")}</p>
+              </Link>
             </div>
-          ) : (
-            <div className="stack center">
-              <div className="eyebrow">Una pausa para vos</div>
-              <div className="orb" style={{ margin: "18px auto" }}>{conjuga(pais, "respirá", "respira")}</div>
-              <p className="muted">{conjuga(pais, "Cerrá un momento. Seguí el círculo: inhalá 4, retené 4, exhalá 4, vacío 4. Dejá que lo que trabajaste se asiente.", "Cierra un momento. Sigue el círculo: inhala 4, retén 4, exhala 4, vacío 4. Deja que lo que trabajaste se asiente.")}</p>
+          ) : null
+        )}
+
+        {cur === "pausa" && (
+          <div className="stack center">
+            <div className="eyebrow">{habla(pais, "Una pausa para vos")}</div>
+            <div className="orb" style={{ margin: "18px auto" }}>{conjuga(pais, "respirá", "respira")}</div>
+            <p className="muted">{conjuga(pais, "Cerrá un momento. Seguí el círculo: inhalá 4, retené 4, exhalá 4, vacío 4. Dejá que lo que trabajaste se asiente.", "Cierra un momento. Sigue el círculo: inhala 4, retén 4, exhala 4, vacío 4. Deja que lo que trabajaste se asiente.")}</p>
+          </div>
+        )}
+
+        {cur === "registrar" && (
+          <div className="stack">
+            <div className="eyebrow">Tu primer cambio · {areaSemana.label}</div>
+            <h2 className="h2">{conjuga(pais, "Registrá lo que cambió esta semana", "Registra lo que cambió esta semana")}</h2>
+            <div className="card card-luna"><p className="serif-lead">{areaSemana.pregunta}</p></div>
+            <p className="tiny">Lo que antes terminaba mal y esta semana no. Ese registro es tuyo y queda — hace crecer tu rueda.</p>
+            <div className="grid-2" style={{ gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+              {PESOS.map((x) => (
+                <button key={x.p} className={"chip" + (logroPeso === x.p ? " sel" : "")} style={{ justifyContent: "center", padding: "12px 4px" }} onClick={() => setLogroPeso(x.p)}>
+                  <span className="tiny" style={{ fontWeight: 800 }}>{x.l}</span>
+                </button>
+              ))}
             </div>
-          )
+            <textarea className="field" style={{ minHeight: 60 }} value={notaDiario} onChange={(e) => setNotaDiario(e.target.value)} placeholder="¿Qué pasó? (ej: hoy no le grité) — opcional" />
+            <EvidenciaCard pais={pais} foto={foto} setFoto={setFoto} fileRef={fileRef} />
+          </div>
         )}
 
         {cur === "encuesta" && (
@@ -269,7 +338,7 @@ export default function Ritual() {
             </div>
             <textarea className="field" style={{ minHeight: 60 }} value={notaDiario} onChange={(e) => setNotaDiario(e.target.value)} placeholder="¿Qué cambió de verdad este mes? (opcional)" />
             <EvidenciaCard pais={pais} foto={foto} setFoto={setFoto} fileRef={fileRef} />
-            <button className="btn btn-ghost ico-row" style={{ justifyContent: "center" }} onClick={() => setTarjeta(tarjetaLuna({ numero: ses.semana, nombreLuna: mod?.nombre || "", subtitulo: "Un mes más de mi renacimiento" }))}>
+            <button className="btn btn-ghost ico-row" style={{ justifyContent: "center" }} onClick={() => setTarjeta(tarjetaLuna({ numero: ses.semana, nombreLuna: mod?.nombre || "", areaLabel: areaSemana.label, areaColor: areaSemana.color, nivelArea: nivelArea(luna), base: baseDeArea(luna) }))}>
               <Icon name="compartir" size={18} /> Mi tarjeta del mes
             </button>
             {tarjeta && (
@@ -288,7 +357,7 @@ export default function Ritual() {
             <p className="tiny">{conjuga(pais, "Una frase corta que te quieras llevar de hoy. La guardás y queda en tus semillas.", "Una frase corta que te quieras llevar de hoy. La guardas y queda en tus semillas.")}</p>
             <div className="card card-luna">
               <p className="tiny" style={{ color: "var(--luna)", fontWeight: 700 }}>PARA INSPIRARTE</p>
-              <p className="serif-quote" style={{ fontSize: "1.1rem", marginTop: 4 }}>{semilla}</p>
+              <p className="serif-quote" style={{ fontSize: "1.1rem", marginTop: 4 }}>{habla(pais, semilla)}</p>
             </div>
             <textarea className="field" value={semillaTexto} onChange={(e) => setSemillaTexto(e.target.value)} placeholder={conjuga(pais, "Escribí tu semilla…", "Escribe tu semilla…")} />
           </div>
@@ -310,6 +379,7 @@ export default function Ritual() {
               {ses.nacimiento ? "Renaciste" : ses.tipo === "cierre" ? `Tu mes ${ses.semana} está completo` : t("listoHoy", pais)}
             </h2>
             <p className="lead">{ses.nacimiento ? "Nueve meses para nacer. Nueve semanas para renacer. Llegaste." : ses.tipo === "cierre" ? "Tu luna creció. Descansá el fin de semana: te lo ganaste." : t("aVivir", pais)}</p>
+            {seg >= 60 && <p className="tiny">Tu sesión de hoy: <b className="num" style={{ color: "var(--luna)" }}>{Math.round(seg / 60)} min</b>{habla(pais, " para vos.")}</p>}
             {ses.tipo !== "cierre" && (
               <p className="tiny">{conjuga(pais, "Cuando en tu vida pase algo que valga la pena, registralo como logro en ", "Cuando en tu vida pase algo que valga la pena, regístralo como logro en ")}<b style={{ color: "var(--luna)" }}>Mi renacer</b>. No tiene que ser hoy.</p>
             )}
@@ -325,7 +395,7 @@ export default function Ritual() {
               <button className="btn btn-primary" onClick={continuar}>Seguir</button>
             </div>
           )
-          : <button className="btn btn-primary btn-lg" onClick={siguiente} disabled={(cur === "check" && !animo) || (cur === "encuesta" && !cierreValor)}>{t("siguiente", pais)}</button>}
+          : <button className="btn btn-primary btn-lg" onClick={siguiente} disabled={(cur === "check" && !animo) || (cur === "encuesta" && !cierreValor) || (cur === "registrar" && !logroPeso)}>{t("siguiente", pais)}</button>}
       </div>
     </div>
   );

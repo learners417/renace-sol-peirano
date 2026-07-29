@@ -1,4 +1,5 @@
 "use client";
+import { habla } from "@/lib/voz";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -24,6 +25,7 @@ function Estado({ done, abierto, activa, n }) {
 }
 
 export default function MiCamino() {
+  const pais = getPais();
   const router = useRouter();
   const [s, setS] = useState(null);
 
@@ -46,6 +48,7 @@ export default function MiCamino() {
     ...(HAY_MEDITACIONES ? [{ href: "/meditar", icon: "auriculares", label: "Meditar" }] : []),
     { href: "/respirar", icon: "viento", label: "Respirar" },
     { href: "/semillas", icon: "brote", label: "Mis semillas" },
+    { href: "/diario", icon: "libro", label: "Mi diario" },
   ];
 
   return (
@@ -53,7 +56,7 @@ export default function MiCamino() {
       <div className="center stack">
         <div className="eyebrow">Mi camino</div>
         <div className="luna-hero"><Luna fase={s.nacio ? 1 : Math.max(0.06, s.fullness)} size={186} /></div>
-        <h1 className="h1" style={{ color: "var(--luna)" }}>Volver a vos, paso a paso</h1>
+        <h1 className="h1" style={{ color: "var(--luna)" }}>{habla(pais, "Volver a vos, paso a paso")}</h1>
         <p className="tiny">{s.nacio ? "Completaste tu camino" : `${s.completas} de 9 lunas · vas por la ${Math.min(s.semanaPlan, 9)}`}</p>
       </div>
 
@@ -65,7 +68,7 @@ export default function MiCamino() {
 
       {s.antes != null && (
         <div className="card stack" style={{ marginTop: 16 }}>
-          <div className="eyebrow">Tu conexión con vos</div>
+          <div className="eyebrow">{habla(pais, "Tu conexión con vos")}</div>
           <div className="between">
             <div className="center" style={{ flex: 1 }}>
               <div className="tiny">Al empezar</div>

@@ -13,7 +13,7 @@ import {
 } from "@/lib/estado";
 import { getModulo } from "@/lib/programa";
 import { NOMBRE_DIA, TOTAL_SESIONES } from "@/lib/semanas";
-import { t } from "@/lib/voz";
+import { t, habla } from "@/lib/voz";
 
 export default function Hoy() {
   const router = useRouter();
@@ -58,40 +58,40 @@ export default function Hoy() {
         <div className="card card-luna stack center" style={{ marginTop: 20 }}>
           <span className="ico" style={{ color: "var(--luna)" }}><Icon name="luna" size={30} /></span>
           <h2 className="h2">Tu ventana de 12 semanas terminó</h2>
-          <p className="muted">Tu camino y todo tu progreso están guardados, esperándote. Podés retomarlo con la extensión del programa completo, al 50%.</p>
+          <p className="muted">{habla(pais, "Tu camino y todo tu progreso están guardados, esperándote. Podés retomarlo con la extensión del programa completo, al 50%.")}</p>
           <Link href="/crecer" className="btn btn-primary btn-lg">Ver mi extensión (50% off)</Link>
         </div>
       ) : listo.nacio ? (
         <div className="card card-oro stack center" style={{ marginTop: 20 }}>
           <span className="ico" style={{ color: "var(--oro)" }}><Icon name="brillo" size={30} /></span>
           <h2 className="h2">Completaste tu camino</h2>
-          <p className="muted">Renaciste. Andá a ver tu graduación — y lo que sigue.</p>
+          <p className="muted">{habla(pais, "Renaciste. Andá a ver tu graduación — y lo que sigue.")}</p>
           <Link href="/graduacion" className="btn btn-oro btn-lg">Ver mi graduación</Link>
         </div>
       ) : listo.gateS1 ? (
         <div className="card card-luna stack center" style={{ marginTop: 20 }}>
           <span className="ico" style={{ color: "var(--luna)" }}><Icon name="brillo" size={30} /></span>
           <h2 className="h2">Tu primer mes está completo</h2>
-          <p className="muted">Ya empezaste a renacer. Te quedan 8 lunas — y tus US$ 17 se descuentan si seguís esta semana.</p>
+          <p className="muted">{habla(pais, "Ya empezaste a renacer. Te quedan 8 lunas — y tus US$ 17 se descuentan si seguís esta semana.")}</p>
           <Link href="/crecer" className="btn btn-primary btn-lg">Quiero seguir mi camino</Link>
         </div>
       ) : descansa ? (
         <div className="card stack center" style={{ marginTop: 20, background: "var(--salvia-wash)", borderColor: "#D8E4DA" }}>
           <span className="ico" style={{ color: "#3F6349" }}><Icon name="hoja" size={30} /></span>
-          <h2 className="h2" style={{ color: "#3F6349" }}>Hoy es tu día de descanso</h2>
-          <p className="muted">El camino también se hace descansando. Tu próxima sesión te espera el lunes. Si querés, hoy podés registrar un logro o meditar — sin obligación.</p>
+          <h2 className="h2" style={{ color: "#3F6349" }}>Hoy es domingo: tu día libre</h2>
+          <p className="muted">{habla(pais, "El camino también se hace descansando. Tu próxima micro-sesión te espera mañana. Si querés, hoy podés registrar un logro o meditar — sin obligación.")}</p>
           <button className="link" onClick={() => setAvanzarFinde(true)}>Igual quiero avanzar hoy</button>
         </div>
       ) : (
         <div className="stack" style={{ marginTop: 18 }}>
           {listo.gracia && (
             <div className="card" style={{ background: "var(--luna-wash)", borderColor: "#E7DEF0", padding: 14 }}>
-              <p className="tiny" style={{ color: "var(--luna)" }}>Estás en tus semanas de gracia. Sin apuro y sin culpa: tu camino sigue acá, y tus logros muestran que vas en serio.</p>
+              <p className="tiny" style={{ color: "var(--luna)" }}>{habla(pais, "Estás en tus semanas de gracia. Sin apuro y sin culpa: tu camino sigue acá, y tus logros muestran que vas en serio.")}</p>
             </div>
           )}
           {hechoHoy && (
             <div className="card" style={{ background: "var(--salvia-wash)", borderColor: "#D8E4DA", padding: 14 }}>
-              <p className="tiny" style={{ color: "#3F6349" }}>Ya hiciste tu sesión de hoy. Si tenés ganas y tiempo, podés seguir — a tu ritmo, sin apuro.</p>
+              <p className="tiny" style={{ color: "#3F6349" }}>{habla(pais, "Ya hiciste tu sesión de hoy. Si tenés ganas y tiempo, podés seguir — a tu ritmo, sin apuro.")}</p>
             </div>
           )}
           {ses && (
@@ -103,10 +103,14 @@ export default function Hoy() {
               <p className="tiny" style={{ marginTop: 2 }}>Semana {ses.semana} · Día {ses.dia} de tu luna</p>
               <p className="muted" style={{ marginTop: 6 }}>
                 {ses.tipo === "integracion"
-                  ? "Hoy no hay video: hoy se vive. Tu práctica de la semana, en tu vida real."
+                  ? "Hoy no hay pantalla: hoy se vive. Una sola consigna, en tu vida real."
+                  : ses.tipo === "practica"
+                  ? "Hoy es tu día de práctica: tu meditación de esta luna, grabada por Sol."
+                  : ses.tipo === "registro"
+                  ? "Hoy registrás tu primer cambio de la semana. Ese registro es tuyo y queda."
                   : ses.tipo === "cierre"
-                  ? (ses.nacimiento ? "Llegaste. Hoy nace la nueva vos." : "Hoy cerrás tu mes: mirás cómo salís, y tu luna se completa.")
-                  : modSemana?.intro}
+                  ? (ses.nacimiento ? "Llegaste. Hoy nace la nueva vos." : habla(pais, "Hoy cerrás tu mes: mirás cómo salís, recibís tu tarjeta, y tu luna se completa."))
+                  : habla(listo.pais, modSemana?.intro || "")}
               </p>
             </div>
           )}
@@ -122,8 +126,8 @@ export default function Hoy() {
           <div className="row">
             <span className="ico" style={{ color: "#3F6349" }}><Icon name="viento" size={24} /></span>
             <div>
-              <b style={{ color: "#3F6349" }}>¿Hora difícil? Respirá un minuto</b>
-              <p className="tiny">SOS Calma para el momento con tus hijos</p>
+              <b style={{ color: "#3F6349" }}>{habla(pais, "¿Hora difícil? Respirá un minuto")}</b>
+              <p className="tiny">{habla(pais, "SOS Calma para el momento con tus hijos")}</p>
             </div>
           </div>
         </Link>

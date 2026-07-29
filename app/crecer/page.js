@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { Nav } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { Luna } from "@/components/Luna";
-import { getUser, planUsuaria, soloSemana1, accesoVencido, nacio, actualizarPlan, reiniciarVentana } from "@/lib/estado";
+import { getUser, planUsuaria, soloSemana1, accesoVencido, nacio, actualizarPlan, reiniciarVentana, getPais } from "@/lib/estado";
+import { habla } from "@/lib/voz";
 
 const L = {
   camino: process.env.NEXT_PUBLIC_LINK_CAMINO || "",
@@ -27,10 +28,11 @@ function Plan({ nombre, precio, detalle, link, destacado }) {
   const style = { textDecoration: "none", color: "inherit", display: "block", borderColor: destacado ? "var(--luna-soft)" : "var(--hairline)", background: destacado ? "var(--luna-wash)" : "var(--surface)" };
   return link
     ? <a href={link} target="_blank" rel="noreferrer" className="card" style={style}>{inner}</a>
-    : <div className="card" style={style}>{inner}<p className="tiny" style={{ color: "var(--luna)", marginTop: 6 }}>Escribile a Sol por WhatsApp para pagar este plan.</p></div>;
+    : <div className="card" style={style}>{inner}<p className="tiny" style={{ color: "var(--luna)", marginTop: 6 }}>{habla(pais, "Escribile a Sol por WhatsApp para pagar este plan.")}</p></div>;
 }
 
 export default function Crecer() {
+  const pais = getPais();
   const router = useRouter();
   const [modo, setModo] = useState(null);
   const [codigo, setCodigo] = useState("");
@@ -52,7 +54,7 @@ export default function Crecer() {
       if (d.plan === "extension") reiniciarVentana();
       setMsg("");
       router.replace("/hoy");
-    } catch { setMsg("No pudimos validar ahora. Probá de nuevo."); }
+    } catch { setMsg("No pudimos validar ahora. Intenta de nuevo."); }
   }
 
   if (!modo) return <div className="app" style={{ minHeight: "100dvh" }} />;
@@ -65,7 +67,7 @@ export default function Crecer() {
 
         {modo === "upgrade" && (<>
           <h1 className="h1" style={{ color: "var(--luna)" }}>Ya empezaste a renacer</h1>
-          <p className="lead">Completaste tu primer mes. Te quedan 8 lunas — y tus US$ 17 se descuentan del programa completo si seguís esta semana.</p>
+          <p className="lead">{habla(pais, "Completaste tu primer mes. Te quedan 8 lunas — y tus US$ 17 se descuentan del programa completo si seguís esta semana.")}</p>
         </>)}
         {modo === "extension" && (<>
           <h1 className="h1" style={{ color: "var(--luna)" }}>Tu camino te espera</h1>
@@ -77,7 +79,7 @@ export default function Crecer() {
         </>)}
         {modo === "planes" && (<>
           <h1 className="h1" style={{ color: "var(--luna)" }}>Crecer en tu camino</h1>
-          <p className="lead">Elegí cómo querés seguir.</p>
+          <p className="lead">{habla(pais, "Elegí cómo querés seguir.")}</p>
         </>)}
       </div>
 
@@ -95,7 +97,7 @@ export default function Crecer() {
 
       <div className="card stack" style={{ marginTop: 20 }}>
         <div className="eyebrow">¿Ya pagaste?</div>
-        <p className="tiny">Ingresá el código nuevo que te llegó. Tu progreso no se pierde: seguís exactamente donde estabas.</p>
+        <p className="tiny">{habla(pais, "Ingresá el código nuevo que te llegó. Tu progreso no se pierde: seguís exactamente donde estabas.")}</p>
         <input className="field" value={codigo} onChange={(e) => setCodigo(e.target.value.toUpperCase())} placeholder="ACOMP-… / EXTENSION-… / RENACIDA-…" style={{ letterSpacing: ".05em" }} />
         {msg && <p className="tiny" style={{ color: "#B4574E" }}>{msg}</p>}
         <button className="btn btn-primary" onClick={canjear}>Activar mi código</button>

@@ -12,6 +12,6 @@ export async function POST(req) {
   extra.forEach((p) => { if (!p.endsWith("-")) p += "-"; if (!prefijos[p]) prefijos[p] = p.replace("-", "").toLowerCase(); });
 
   const hit = Object.keys(prefijos).find((p) => codigo.startsWith(p));
-  if (!hit) return Response.json({ ok: false, error: "Ese código no es válido. Revisalo o escribile a Sol." }, { status: 200 });
+  if (!hit) return Response.json({ ok: false, error: "Ese código no es válido. Revísalo o escríbele a Sol por WhatsApp." }, { status: 200 });
   return Response.json({ ok: true, plan: prefijos[hit] });
 }

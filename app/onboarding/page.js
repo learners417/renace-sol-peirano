@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { guardarOnboarding, guardarDiagnostico, setPais, getUser } from "@/lib/estado";
 import { mensajeSolInicio, diagnostico, mensajeDolor } from "@/lib/programa";
-import { PAISES } from "@/lib/voz";
+import { PAISES, habla } from "@/lib/voz";
 import { Luna } from "@/components/Luna";
+import { AREAS } from "@/lib/vida";
 
 export default function Onboarding() {
   const router = useRouter();
@@ -42,8 +43,8 @@ export default function Onboarding() {
 
       {paso === 1 && (
         <div className="stack">
-          <div className="eyebrow">Para hablarte como sos</div>
-          <h2 className="h2">¿Desde qué país nos acompañás?</h2>
+          <div className="eyebrow">{habla(pais, "Para hablarte como sos")}</div>
+          <h2 className="h2">{habla(pais, "¿Desde qué país nos acompañás?")}</h2>
           <div className="stack">
             {PAISES.map((p) => (
               <button key={p.code} className={"chip" + (pais === p.code ? " sel" : "")} onClick={() => setPaisSel(p.code)}>
@@ -105,7 +106,7 @@ export default function Onboarding() {
       {paso === 4 && (
         <div className="stack">
           <div className="eyebrow">Una última cosa</div>
-          <h2 className="h2">Una carta para vos</h2>
+          <h2 className="h2">{habla(pais, "Una carta para vos")}</h2>
           <p className="tiny">Corta, sincera. La vas a leer al final del camino, cuando ya seas otra.</p>
           <textarea className="field" value={carta} onChange={(e) => setCarta(e.target.value)} placeholder="Querida yo, hoy empiezo este camino porque…" />
           <button className="btn btn-primary btn-lg" onClick={finish}>Empezar mi primera luna</button>
