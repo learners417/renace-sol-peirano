@@ -1,8 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-export default function DiarioRedirect() {
+export default function Diario() {
   const router = useRouter();
   useEffect(() => { router.replace("/mi-renacer"); }, [router]);
-  return <div className="app" style={{ minHeight: "100dvh" }} />;
+  return null;
 }

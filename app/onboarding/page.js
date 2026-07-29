@@ -88,7 +88,7 @@ export default function Onboarding() {
             <h2 className="h2">Tu punto de partida</h2>
             <p className="tiny">Así medimos tu renacimiento: cómo está cada área de tu vida HOY, del 1 al 10. Sin juicio — es tu foto de partida.</p>
             <div className="card card-luna center" style={{ padding: 18 }}>
-              <span style={{ width: 14, height: 14, borderRadius: "50%", background: ar.color, display: "inline-block", marginBottom: 6 }} />
+              <span style={{ fontSize: "1.9rem", display: "block", marginBottom: 4 }}>{ar.emoji}</span>
               <h2 className="h2" style={{ color: "var(--luna)" }}>{ar.label}</h2>
               <p className="tiny" style={{ marginTop: 4 }}>¿Cómo está esta área hoy?</p>
             </div>

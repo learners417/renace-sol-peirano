@@ -29,6 +29,7 @@ export default function Meditar() {
       </div>
 
       <div className="stack" style={{ marginTop: 18 }}>
+        <p className="tiny center">{habla(pais, "Cada meditación también aparece dentro de tu camino, en su día y su momento justo. Acá quedan guardadas para volver a ellas cuando quieras.")}</p>
         {MEDITACIONES.map((m) => {
           const abierta = semanaDesbloqueada(m.luna);
           return (

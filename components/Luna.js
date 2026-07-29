@@ -1,41 +1,59 @@
 "use client";
-// La firma visual: una luna que crece (nueva -> llena) según el progreso,
-// y un jardín de 9 flores (una por luna). Femenino, cíclico, propio de Sol.
-
-export function Luna({ fase = 0, size = 190, halo = true }) {
-  // fase 0..1 (0 = nueva/oscura, 0.5 = media, 1 = llena).
-  const r = size / 2 - 6;
-  const cx = size / 2, cy = size / 2;
+// La Luna — la idea central de la app. Esfera realista en SVG:
+// perla cálida con cráteres sutiles, terminador suave según la fase, halo sereno.
+// fase: 0 (nueva) → 1 (llena). En llena, brilla dorada (la luna completa).
+let uid = 0;
+export function Luna({ fase = 0.5, size = 120, halo = true }) {
+  const id = "ln" + (++uid);
   const f = Math.max(0, Math.min(1, fase));
-  // Terminador: elipse cuyo radio horizontal va de r (nueva) -> 0 (media) -> r (llena).
-  const rx = Math.abs(Math.cos(Math.PI * f)) * r;
-  const sweepInner = f < 0.5 ? 1 : 0; // f<.5 come del lado derecho; f>.5 bulge a la izquierda
-  const uid = `${Math.round(f * 1000)}-${size}`;
-  const idFill = `lf-${uid}`, idHalo = `lh-${uid}`;
+  // terminador: la sombra entra desde la izquierda y se retira al crecer la fase
+  const sombraX = 100 - f * 200; // 100 (todo sombra) → -100 (nada)
+  const llena = f >= 0.98;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`Luna al ${Math.round(f * 100)} por ciento`}>
+    <svg width={size} height={size} viewBox="-60 -60 120 120" style={{ display: "block" }}>
       <defs>
-        <radialGradient id={idFill} cx="38%" cy="32%" r="75%">
-          <stop offset="0%" stopColor="#F6ECCF" />
-          <stop offset="100%" stopColor="#C9A24B" />
+        <radialGradient id={id + "g"} cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stopColor={llena ? "#FFF6DE" : "#FDFAF4"} />
+          <stop offset="45%" stopColor={llena ? "#F3E3B8" : "#EFE9E0"} />
+          <stop offset="80%" stopColor={llena ? "#DDC488" : "#D8CFC6"} />
+          <stop offset="100%" stopColor={llena ? "#C9A24B" : "#BFB4AC"} />
         </radialGradient>
-        <radialGradient id={idHalo} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(201,162,75,.35)" />
-          <stop offset="100%" stopColor="rgba(201,162,75,0)" />
+        <radialGradient id={id + "h"} cx="50%" cy="50%" r="50%">
+          <stop offset="55%" stopColor={llena ? "rgba(201,162,75,0.35)" : "rgba(185,164,212,0.30)"} />
+          <stop offset="100%" stopColor="rgba(185,164,212,0)" />
         </radialGradient>
+        <radialGradient id={id + "s"} cx="30%" cy="50%" r="90%">
+          <stop offset="0%" stopColor="rgba(46,42,50,0.92)" />
+          <stop offset="70%" stopColor="rgba(62,54,74,0.88)" />
+          <stop offset="100%" stopColor="rgba(78,68,92,0.82)" />
+        </radialGradient>
+        <clipPath id={id + "c"}><circle r="50" /></clipPath>
       </defs>
-      {halo && <circle cx={cx} cy={cy} r={r + 6} fill={`url(#${idHalo})`} />}
-      {/* disco oscuro (sombra) */}
-      <circle cx={cx} cy={cy} r={r} fill="#EAE3D3" />
-      {/* parte iluminada (media luna derecha + elipse del terminador) */}
-      {f > 0.001 && (
-        <path
-          d={`M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy - r} Z`}
-          fill={`url(#${idFill})`}
-        />
+      {halo && <circle r="59" fill={`url(#${id}h)`} />}
+      {/* cuerpo */}
+      <circle r="50" fill={`url(#${id}g)`} />
+      {/* cráteres sutiles */}
+      <g clipPath={`url(#${id}c)`} fill="#8D8478" opacity="0.16">
+        <circle cx="-16" cy="-12" r="9" />
+        <circle cx="14" cy="6" r="6" />
+        <circle cx="-4" cy="22" r="7.5" />
+        <circle cx="24" cy="-20" r="4.5" />
+        <circle cx="30" cy="24" r="3.5" />
+        <circle cx="-30" cy="10" r="4" />
+      </g>
+      <g clipPath={`url(#${id}c)`} fill="#FFFFFF" opacity="0.10">
+        <circle cx="-18" cy="-14" r="9" />
+        <circle cx="12" cy="4" r="6" />
+        <circle cx="-6" cy="20" r="7.5" />
+      </g>
+      {/* la sombra de la fase (terminador suave) */}
+      {!llena && (
+        <g clipPath={`url(#${id}c)`}>
+          <ellipse cx={sombraX} cy="0" rx="100" ry="100" fill={`url(#${id}s)`} style={{ filter: "blur(1.5px)" }} />
+        </g>
       )}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(201,162,75,.45)" strokeWidth="1.5" />
+      {/* brillo del borde iluminado */}
+      <circle r="50" fill="none" stroke={llena ? "rgba(255,244,214,0.9)" : "rgba(255,255,255,0.55)"} strokeWidth="1.2" />
     </svg>
   );
 }
-

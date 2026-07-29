@@ -48,7 +48,6 @@ export default function MiCamino() {
     ...(HAY_MEDITACIONES ? [{ href: "/meditar", icon: "auriculares", label: "Meditar" }] : []),
     { href: "/respirar", icon: "viento", label: "Respirar" },
     { href: "/semillas", icon: "brote", label: "Mis semillas" },
-    { href: "/diario", icon: "libro", label: "Mi diario" },
   ];
 
   return (

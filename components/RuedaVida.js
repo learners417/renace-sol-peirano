@@ -21,7 +21,7 @@ export function RuedaVida({ scores = {}, bases = {}, size = 300, onArea }) {
   };
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Tu rueda de la vida">
+    <svg width={size} height={size} viewBox={`-42 -30 ${size + 84} ${size + 60}`} role="img" aria-label="Tu rueda de la vida">
       {/* anillos guía */}
       {[0.5, 1].map((k) => (
         <circle key={k} cx={cx} cy={cy} r={R * k} fill="none" stroke="#ECE6DF" strokeWidth="1" />
@@ -47,9 +47,7 @@ export function RuedaVida({ scores = {}, bases = {}, size = 300, onArea }) {
             {/* etiqueta */}
             <text x={lx} y={ly} fontSize="9.5" fontWeight="700"
               fill="#574F60" textAnchor={cosv > 0.25 ? "start" : cosv < -0.25 ? "end" : "middle"}
-              dominantBaseline="middle" style={{ fontFamily: "'Nunito Sans', sans-serif" }}>
-              {a.label}
-            </text>
+              dominantBaseline="middle" style={{ fontFamily: "'Nunito Sans', sans-serif" }}>{(a.emoji ? a.emoji + " " : "") + a.label}</text>
           </g>
         );
       })}

@@ -17,6 +17,10 @@ export default function Serena() {
   const router = useRouter();
   const [modo, setModo] = useState("companera");
   const [msgs, setMsgs] = useState([]);
+  useEffect(() => {
+    if (msgs.length > 1 && modo) { try { localStorage.setItem("rn_serena_" + modo, JSON.stringify(msgs.slice(-30))) } catch {} }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [msgs]);
   const [input, setInput] = useState("");
   const [cargando, setCargando] = useState(false);
   const [pais, setPais] = useState("OT");
@@ -31,7 +35,10 @@ export default function Serena() {
   }, [router]);
 
   useEffect(() => {
-    setMsgs([{ role: "app", texto: habla(getPais(), MODOS.find((m) => m.id === modo).intro) }]);
+    let guardado = null;
+    try { guardado = JSON.parse(localStorage.getItem("rn_serena_" + modo) || "null"); } catch {}
+    if (guardado && guardado.length > 1) setMsgs(guardado);
+    else setMsgs([{ role: "app", texto: habla(getPais(), MODOS.find((m) => m.id === modo).intro) }]);
   }, [modo]);
 
   useEffect(() => { scroller.current?.scrollTo(0, scroller.current.scrollHeight); }, [msgs, cargando]);
@@ -68,6 +75,11 @@ export default function Serena() {
         ))}
       </div>
 
+      {msgs.length > 2 && (
+        <button className="link tiny" style={{ alignSelf: "flex-end", marginBottom: 4 }} onClick={() => { try { localStorage.removeItem("rn_serena_" + modo) } catch {} setMsgs([{ role: "app", texto: habla(getPais(), MODOS.find((m) => m.id === modo).intro) }]); }}>
+          {habla(pais, "Empezar una conversación nueva")}
+        </button>
+      )}
       <div ref={scroller} className="chat-scroll" style={{ flex: 1, overflowY: "auto" }}>
         {msgs.map((m, i) => (
           <div key={i} className={"bubble " + (m.role === "me" ? "bubble-me" : "bubble-app")}>{m.texto}</div>

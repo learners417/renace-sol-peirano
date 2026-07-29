@@ -9,7 +9,7 @@ import { getUser, getHitos, agregarHito, areaScore, lunaActual, getDiario, getBa
 import { AREAS as AREAS_ALL } from "@/lib/vida";
 import { AREAS, areaDe } from "@/lib/vida";
 import { achicarFoto } from "@/lib/foto";
-import { collageFinal, descargar } from "@/lib/collage";
+import { Celebracion } from "@/components/Celebracion";
 import { compartirTexto } from "@/lib/compartir";
 
 const ANIMO = ["😮‍💨", "😔", "😐", "🙂", "🌷"];
@@ -30,7 +30,8 @@ export default function MiRenacer() {
   const [peso, setPeso] = useState(0);
   const [texto, setTexto] = useState("");
   const [foto, setFoto] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [cele, setCele] = useState(0);
+  const [mostrarDiario, setMostrarDiario] = useState(6);
   const [bases, setBases] = useState(null);
   const [nivel, setNivel] = useState({ ini: null, hoy: null });
   const [baseIdx, setBaseIdx] = useState(0);
@@ -54,6 +55,7 @@ export default function MiRenacer() {
   function guardar() {
     if (!area || !peso) return;
     agregarHito({ texto, area, peso, foto });
+    setCele(peso);
     setPeso(0); setTexto(""); setFoto(null);
     refrescar();
   }
@@ -122,7 +124,7 @@ export default function MiRenacer() {
         <div className="row" style={{ flexWrap: "wrap", gap: 6 }}>
           {AREAS.map((ar) => (
             <button key={ar.n} className="chip" style={{ width: "auto", padding: "8px 12px", gap: 8, border: area === ar.n ? "1px solid var(--luna)" : "1px solid var(--hairline)", background: area === ar.n ? "var(--luna-wash)" : "var(--surface)" }} onClick={() => setArea(ar.n)}>
-              <Dot color={ar.color} /> {ar.label}
+              {ar.emoji} {ar.label}
             </button>
           ))}
         </div>
@@ -142,23 +144,26 @@ export default function MiRenacer() {
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && achicarFoto(e.target.files[0], setFoto)} />
           {foto && <img src={foto} alt="evidencia" style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8 }} />}
         </div>
-        <textarea className="field" style={{ minHeight: 60 }} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Contarlo es opcional: ¿qué pasó? (ej: hoy no le grité)" />
-        <button className="btn btn-primary" onClick={guardar} disabled={!area || !peso}>Guardar mi logro</button>
+        <textarea className="field" style={{ minHeight: 60 }} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={habla(pais, "¿Qué pasó? Contalo en una línea (ej: hoy no le grité) — esto queda en tu historia")} />
+        <button className="btn btn-primary" onClick={guardar} disabled={!area || !peso || !texto.trim()}>{habla(pais, "Guardar mi logro")}</button>
+        {(!texto.trim() && peso) ? <p className="tiny" style={{ color: "var(--luna)" }}>{habla(pais, "Contá qué pasó en una línea: los logros escritos son los que se recuerdan.")}</p> : null}
       </div>
 
-      <button className="btn btn-soft ico-row" style={{ marginTop: 14, justifyContent: "center" }} disabled={!diario.length} onClick={() => setPreview(collageFinal({ scores, bases: bases || {}, nivelIni: nivel.ini, nivelHoy: nivel.hoy, frases: diario.filter((e) => e.texto).slice(0, 2).map((e) => e.texto), lunas: semanasCompletas() }))}>
-        <Icon name="luna" size={18} /> Armar mi collage
-      </button>
-      {preview && (
-        <div className="card stack" style={{ marginTop: 12 }}>
-          <img src={preview} alt="Tu collage" style={{ width: "100%", borderRadius: "var(--r-1)" }} />
-          <div className="grid-2">
-            <button className="btn btn-primary ico-row" style={{ justifyContent: "center" }} onClick={() => descargar(preview, "mi-renacimiento.png")}><Icon name="descargar" size={18} /> Descargar</button>
-            <button className="btn btn-ghost ico-row" style={{ justifyContent: "center" }} onClick={() => compartirTexto("Mi renacimiento con el Método R.E.N.A.C.E. de Sol Peirano")}><Icon name="compartir" size={18} /> Compartir</button>
+      <div className="stack" style={{ marginTop: 22 }}>
+        <div className="eyebrow">Tu diario del camino</div>
+        {diario.length === 0 && <div className="card center muted">{habla(pais, "Acá se van guardando tus notas de cada sesión: lo que te resonó, lo que escribiste, tus fotos. Tu historia, contada por vos.")}</div>}
+        {diario.slice(0, mostrarDiario).map((e, i) => (
+          <div key={i} className="card" style={{ padding: 14 }}>
+            <div className="between" style={{ marginBottom: 4 }}>
+              <span className="tiny" style={{ fontWeight: 700, color: "var(--luna)" }}>{e.luna ? "Luna " + e.luna : "Nota"}</span>
+              <span className="tiny">{new Date(e.fecha).toLocaleDateString()}</span>
+            </div>
+            {e.texto && <p style={{ margin: 0 }}>{e.texto}</p>}
+            {e.foto && <img src={e.foto} alt="tu evidencia" style={{ marginTop: 8, width: 84, height: 84, objectFit: "cover", borderRadius: 10 }} />}
           </div>
-          <button className="link" onClick={() => setPreview(null)}>Cerrar</button>
-        </div>
-      )}
+        ))}
+        {diario.length > mostrarDiario && <button className="link" onClick={() => setMostrarDiario((m) => m + 10)}>{habla(pais, "Ver más de mi diario")}</button>}
+      </div>
 
       <div className="stack" style={{ marginTop: 22 }}>
         <div className="eyebrow">Tus logros</div>
@@ -168,7 +173,7 @@ export default function MiRenacer() {
           return (
             <div key={i} className="card" style={{ padding: 14 }}>
               <div className="between" style={{ marginBottom: 6 }}>
-                <span className="pill pill-luna ico-row"><Dot color={ar.color} /> {ar.label}</span>
+                <span className="pill pill-luna ico-row">{ar.emoji} {ar.label}</span>
                 <span className="tiny">Creciste {PESO_L[h.peso] || "un pasito"} · {new Date(h.fecha).toLocaleDateString()}</span>
               </div>
               {h.texto && <p>{h.texto}</p>}
@@ -193,6 +198,8 @@ export default function MiRenacer() {
           ))}
         </div>
       )}
+
+      {cele > 0 && <Celebracion peso={cele} onCerrar={() => setCele(0)} />}
 
       <Nav />
     </div>
